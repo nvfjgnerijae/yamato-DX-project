@@ -1,0 +1,1416 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" rel="stylesheet" href="resources/sheet.css">
+<style>
+.ritz .waffle a{color:inherit}
+.ritz .waffle .s0,.ritz .waffle .s1{background-color:#fff;text-align:left;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s0{text-align:center}
+.ritz .waffle .s3{background-color:#fff;text-align:right;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s4,.ritz .waffle .s5,.ritz .waffle .s6{border-bottom:2px solid #000;background-color:#fff;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s4,.ritz .waffle .s6{text-align:left}
+.ritz .waffle .s5{text-align:center}
+.ritz .waffle .s6{text-align:right}
+.ritz .waffle .s2{background-color:#fff;text-align:center;font-weight:700;color:#000;font-family:Arial;font-size:22pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s7{border-bottom:2px solid #000;background-color:#fff;text-align:center;font-weight:700;color:#000;font-family:Arial;font-size:9pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s8,.ritz .waffle .s27,.ritz .waffle .s43{border-right:2px solid #000;background-color:#fff}
+.ritz .waffle .s8,.ritz .waffle .s43{text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s43{border-right:1px solid #000}
+/*
+縦書きに変更
+writing-mode: vertical-rl; （テキストを縦書きにし、行を右から左へ配置します）
+text-orientation: upright; （文字を回転させず、直立した状態に保ちます）
+*/
+.ritz .waffle .s9{border-bottom:2px solid #000;border-right:1px solid #000;writing-mode: vertical-rl;text-orientation: upright;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s33,.ritz .waffle .s57{border-bottom:2px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s10,.ritz .waffle .s12{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s10{text-align:center}
+.ritz .waffle .s11,.ritz .waffle .s12{text-align:left}
+.ritz .waffle .s11,.ritz .waffle .s14,.ritz .waffle .s34,.ritz .waffle .s58{border-bottom:1px solid #000;border-right:2px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s14{text-align:left}
+.ritz .waffle .s13{border-bottom:1px solid #000;border-right:2px solid #000;background-color:#d9d9d9;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s22{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#d9d9d9;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s13{text-align:left}
+/*右の線を細くしたborder-right*/
+.ritz .waffle .s15,.ritz .waffle .s23{border-bottom:1px solid #000;border-right:1px solid #000;color:#000;font-family:"docs-Aptos Narrow",Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s15{background-color:#d9d9d9;text-align:left}
+.ritz .waffle .s16,.ritz .waffle .s17,.ritz .waffle .s18,.ritz .waffle .s20{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;color:#000;font-family:Arial;vertical-align:middle;direction:ltr;padding:0 3px}
+.ritz .waffle .s16,.ritz .waffle .s17,.ritz .waffle .s18{text-align:center;white-space:normal;overflow:hidden;word-wrap:break-word}
+.ritz .waffle .s16,.ritz .waffle .s18{font-size:8pt}
+.ritz .waffle .s17{font-weight:700;font-size:10pt}
+.ritz .waffle .s18{font-size:7pt}
+.ritz .waffle .s19{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;text-align:right;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s20{text-align:left;font-size:8pt;white-space:normal;overflow:hidden;word-wrap:break-word}
+.ritz .waffle .s21{border-bottom:1px solid #000;border-right:2px solid #000;background-color:#fff;text-align:center;font-weight:700;color:#000;font-family:Arial;font-size:9pt;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;direction:ltr;padding:0 3px}
+.ritz .waffle .s23{background-color:#fff;text-align:left}
+.ritz .waffle .s24,.ritz .waffle .s25{border-bottom:2px solid #000;border-right:1px solid #000;background-color:#fff;color:#000;font-family:Arial;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s24{text-align:left;font-size:8pt}
+.ritz .waffle .s25{text-align:center;font-weight:700;font-size:9pt}
+.ritz .waffle .s26{border-bottom:2px solid #000;border-right:2px solid #000;background-color:#d9d9d9;text-align:left;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+/*下のボーダーを細くしたborder-bottom*/
+.ritz .waffle .s28{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s46{border-bottom:2px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s29,.ritz .waffle .s30{background-color:#fff;text-align:left;color:#000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s30{border-bottom:2px solid #000}
+.ritz .waffle .s31{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:7pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s32{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:9pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s33{font-size:8pt}
+.ritz .waffle .s35,.ritz .waffle .s40{border-bottom:1px solid #000;background-color:#fff;text-align:left;color:#000;font-family:Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s35{border-right:1px solid #000}
+.ritz .waffle .s36,.ritz .waffle .s49{background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s49{border-bottom:2px solid #000}
+.ritz .waffle .s37,.ritz .waffle .s39{background-color:#fff;text-align:left;color:#000;font-family:"docs-Aptos Narrow",Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s39{border-right:2px solid #000}
+.ritz .waffle .s38{background-color:#fff;text-align:left;font-weight:700;color:#000;font-family:Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s41{border-bottom:1px solid #000;background-color:#fff}
+.ritz .waffle .s42{border-bottom:1px solid #000;border-right:2px solid #000;background-color:#fff;text-align:left;color:#000;font-family:"docs-Aptos Narrow",Arial;font-size:11pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s44,.ritz .waffle .s45{border-right:1px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s45{border-right:2px solid #000}
+.ritz .waffle .s47,.ritz .waffle .s48,.ritz .waffle .s50,.ritz .waffle .s51{border-bottom:2px solid #000;border-right:1px solid #000;background-color:#fff;color:#000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s47,.ritz .waffle .s51{text-align:left;font-size:11pt}
+.ritz .waffle .s48{text-align:center}
+.ritz .waffle .s50{text-align:left;font-size:11pt}
+.ritz .waffle .s52,.ritz .waffle .s53{border-bottom:2px solid #000;border-right:1px solid #000;background-color:#fff;text-align:center;font-weight:700;color:#000;font-family:Arial;font-size:14pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s53{border-right:2px solid #000}
+/*背景を白に直したbackground-color*/
+.ritz .waffle .s54{border-bottom:2px solid #000;border-right:2px solid #000;background-color:#fff;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s55{border-right:1px solid #000;background-color:#d9d9d9;text-align:center;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s56{border-bottom:1px solid #000;border-right:1px solid #000;background-color:#fff;color:#000;font-family:Arial;font-size:7pt;text-align:center;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
+.ritz .waffle .s57{font-size:7pt}
+.ritz .waffle .s58{font-size:7pt}
+.ritz .waffle .s59 {
+  width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* 入力セルのフォーカス表示（見やすさのみ。印刷影響なし） */
+  td[contenteditable="true"]{outline:none}
+  td[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px #4c9aff}
+/* ↓ このコードを追記します */
+thead, th.row-headers-background {
+  display: table-header-group;   /* ← none にしない */
+  height: 0;
+  line-height: 0;
+  font-size: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+/* 一番下にこれを追加する */
+.ritz .waffle {
+  table-layout: fixed;
+  /*width: 100%;*/
+}
+
+.ritz .waffle td {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+/* 折り返しを許可するセル用 */
+.ritz .waffle td.wrap-cell {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-all;   /* 日本語でも折れるようにする */
+}
+/* 流動表のみをpdf化し、A4サイズに固定 */
+@media print {
+  #control-panel { display: none; }
+  body { margin: 0; }
+  .waffle { zoom: 0.85; } /* 必要なら縮小 */
+}
+
+@media print {
+  html, body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* グレーにしたいセルに強制する */
+  .ritz .waffle .s13,
+  .ritz .waffle .s22,
+  .ritz .waffle .s26,
+  .ritz .waffle .s55,
+  .ritz .waffle .s15 {
+    background-color: #d9d9d9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 入力用パネルは隠すならここで */
+  #control-panel {
+    display: none;
+  }
+}
+
+</style>
+<div id="control-panel" style="margin-bottom: 1rem;">
+  <textarea id="json-input" rows="10" style="width:100%;"
+  placeholder=
+'```json
+{
+  "基本情報":
+}
+```
+```json
+{
+  "工程管理記入欄": 
+}
+```
+  '></textarea>
+  <div style="margin-top: 0.5rem; display:flex; gap:0.5rem;">
+    <button id="apply-json-btn">情報を反映</button>
+    <button id="print-pdf-btn">保存/印刷</button>
+  </div>
+</div>
+<div class="ritz grid-container" dir="ltr">
+<table class="waffle" cellspacing="0" cellpadding="0">
+<thead>
+<tr>
+<th class="row-header freezebar-origin-ltr"></th>
+                      <!--すべて+10px-->
+<th id="942883767C0" style="width:0px" class="column-headers-background">A</th>
+<th id="942883767C1" style="width:44px" class="column-headers-background">B</th>
+<th id="942883767C2" style="width:38px" class="column-headers-background">C</th>
+<th id="942883767C3" style="width:39px" class="column-headers-background">D</th>
+<th id="942883767C4" style="width:44px" class="column-headers-background">E</th>
+<th id="942883767C5" style="width:46px" class="column-headers-background">F</th>
+<th id="942883767C6" style="width:31px" class="column-headers-background">G</th>
+<th id="942883767C7" style="width:16px" class="column-headers-background">H</th>
+<th id="942883767C8" style="width:46px" class="column-headers-background">I</th>
+<th id="942883767C9" style="width:40px" class="column-headers-background">J</th>
+<th id="942883767C10" style="width:57px" class="column-headers-background">K</th>
+<th id="942883767C11" style="width:34px" class="column-headers-background">L</th>
+<th id="942883767C12" style="width:43px" class="column-headers-background">M</th>
+<th id="942883767C13" style="width:45px" class="column-headers-background">N</th>
+<th id="942883767C14" style="width:31px" class="column-headers-background">O</th>
+<th id="942883767C15" style="width:55px" class="column-headers-background">P</th>
+<th id="942883767C16" style="width:86px" class="column-headers-background">Q</th>
+<th id="942883767C17" style="width:71px" class="column-headers-background">R</th>
+<th id="942883767C18" style="width:49px" class="column-headers-background">S</th>
+<th id="942883767C19" style="width:56px" class="column-headers-background">T</th>
+</tr>
+</thead>
+<tbody>
+<tr style="height:23px">
+<th id="942883767R0" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">1</div></th>
+<td class="s60"></td>
+<td class="s60" dir="ltr"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+<td class="s60"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R1" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">2</div></th>
+<td class="s0"></td>
+<td class="s1" colspan="2">様式-1</td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s2" dir="ltr"></td>
+<td class="s2" dir="ltr" colspan="5" rowspan="2">流　動　票</td>
+<td class="s2"></td>
+<td class="s2"></td>
+<td class="s3" colspan="2">大和電機工業株式会社</td>
+
+</tr>
+<tr style="height:23px">
+<th id="942883767R2" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">3</div></th>
+<td class="s1"></td>
+<td class="s1">発行日</td>
+<td class="s1" dir="ltr" colspan="3"></td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s1"></td>
+<td class="s2" dir="ltr"></td>
+<td class="s2"></td>
+<td class="s2"></td>
+<td class="s2"></td>
+<td class="s3">特機事業所</td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R3" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">4</div></th>
+<td class="s1"></td>
+<td class="s4" dir="ltr">Rev.H</td>
+<td class="s4"></td>
+<td class="s4"></td>
+<td class="s4"></td>
+<td class="s4"></td>
+<td class="s4" colspan="3">依頼主</td>
+<td class="s5" colspan="5"></td>
+<td class="s5"></td>
+<td class="s6" dir="ltr">No.</td>
+<td class="s7" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R4" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">5</div></th>
+<td class="s8"></td>
+<td class="s9" rowspan="16">管理部門記入欄</td>
+<td class="s10" colspan="6">会社名</td>
+<td class="s10" dir="ltr" colspan="6">製品名</td>
+<td class="s10" dir="ltr" colspan="3">図面番号</td>
+<td class="s11">発送日</td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R5" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">6</div></th>
+<td class="s8"></td>
+<td class="s12" dir="ltr" colspan="6"></td>
+<td class="s12" dir="ltr" colspan="6"></td>
+<td class="s12" dir="ltr" colspan="3"></td>
+<td class="s11" dir="ltr"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R6" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">7</div></th>
+<td class="s8"></td>
+<td class="s10" dir="ltr" colspan="2">分納納期１</td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s10" dir="ltr" colspan="3"></td>
+<td class="s10" dir="ltr" colspan="2">分納納期２</td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s13" dir="ltr" colspan="3"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R7" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">8</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">材質</td>
+<td class="s12" dir="ltr" colspan="6"></td>
+<td class="s10">フライス</td>
+<td class="s12" dir="ltr" colspan="2"></td>
+<td class="s10" colspan="2">購入先</td>
+<td class="s14" dir="ltr" colspan="3"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R8" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">9</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">材料寸法</td>
+<td class="s10">縦</td>
+<td class="s10" dir="ltr" colspan="3"></td>
+<td class="s10">横</td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s10">高</td>
+<td class="s10" dir="ltr" colspan="3"></td>
+<td class="s10" colspan="1">個数</td>
+<td class="s10" dir="ltr">材料価格</td>
+<td class="s14" dir="ltr"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R9" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">10</div></th>
+<td class="s8"></td>
+<td class="s16" dir="ltr" colspan="3">新規/リピート</td>
+<td class="s17" dir="ltr" colspan="4"></td>
+<td class="s18" dir="ltr" colspan="2">製造/設計/転売</td>
+<td class="s17" dir="ltr" colspan="2"></td>
+<td class="s55" dir="ltr" colspan="2" rowspan="3"></td>
+<td class="s19" dir="ltr" colspan="1"></td>
+<td class="s10" dir="ltr">外注価格</td>
+<td class="s14" dir="ltr"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R10" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">11</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">業者1</td>
+<td class="s20" dir="ltr" colspan="5"></td>
+<td class="s18">役割</td>
+<td class="s20" dir="ltr" colspan="3"></td>
+<td class="s10" dir="ltr" colspan="1">注文数</td>
+<td class="s10" dir="ltr">販売単価</td>
+<td class="s14" dir="ltr"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R11" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">12</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">業者2</td>
+<td class="s20" dir="ltr" colspan="5"></td>
+<td class="s18">役割</td>
+<td class="s20" dir="ltr" colspan="3"></td>
+<td class="s19" colspan="1"></td>
+<td class="s10" dir="ltr" rowspan="2">作成者</td>
+<td class="s21" dir="ltr" rowspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R12" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">13</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">業者3</td>
+<td class="s20" dir="ltr" colspan="5"></td>
+<td class="s18">役割</td>
+<td class="s20" dir="ltr" colspan="3"></td>
+<td class="s22" colspan="3" rowspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R13" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">14</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="2">業者4</td>
+<td class="s20" colspan="5"></td>
+<td class="s18">役割</td>
+<td class="s20" colspan="3"></td>
+<td class="s13" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R14" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">15</div></th>
+<td class="s8"></td>
+<td class="s11" colspan="16">工程の注意点</td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R15" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">16</div></th>
+<td class="s8"></td>
+<td class="s14" dir="ltr" colspan="16" rowspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R16" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">17</div></th>
+<td class="s8"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R17" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">18</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="4">図面問い合わせ内容：</td>
+<td class="s14" colspan="12"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R18" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">19</div></th>
+<td class="s8"></td>
+<td class="s10" colspan="4">回答：</td>
+<td class="s14" colspan="12"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R19" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">20</div></th>
+<td class="s8"></td>
+<td class="s24" dir="ltr"colspan="2">処理の有無</td>
+<td class="s25" dir="ltr"></td>
+<td class="s24" dir="ltr">台待ち</td>
+<td class="s33" dir="ltr" colspan="2"></td>
+<td class="s33" dir="ltr">いつ</td>
+<td class="s33" dir="ltr" colspan="2"></td>
+<td class="s33" dir="ltr">誰が</td>
+<td class="s24" dir="ltr" colspan="2"></td>
+<td class="s33" dir="ltr" colspan="2">誰に確認</td>
+<td class="s24" dir="ltr"></td>
+<td class="s26" dir="ltr"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R20" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">21</div></th>
+<td class="s27"></td>
+<td class="s9" rowspan="17">工程管理記入欄</td>
+<td class="s28" colspan="5" rowspan="2">特別購入品</td>
+<td class="s12" dir="ltr" colspan="7"></td>
+<td class="s14" dir="ltr" colspan="4"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R21" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">22</div></th>
+<td class="s27"></td>
+<td class="s12" dir="ltr" colspan="7"></td>
+<td class="s14" dir="ltr" colspan="4"></td>
+<td class="s30"></td>
+<td class="s30"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R22" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">23</div></th>
+<td class="s27"></td>
+<td class="s10">月</td>
+<td class="s10" dir="ltr">日</td>
+<td class="s10" colspan="3">工程記入</td>
+<td class="s10" colspan="3">作業時間</td>
+<td class="s10" colspan="2">段取時間(分)</td>
+<td class="s10" colspan="2">冶工具</td>
+<td class="s10" colspan="2">作業時間(分)</td>
+<td class="s31" dir="ltr">外注又は加工者名</td>
+<td class="s10">単価</td>
+<td class="s11" colspan="2">品質確認者</td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R23" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">24</div></th>
+<td class="s27"></td>
+<td class="s32" dir="ltr"></td>
+<td class="s32" dir="ltr"></td>
+<td class="s56" dir="ltr" colspan="3"></td>
+<td class="s10" dir="ltr" colspan="3"></td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s56" dir="ltr" colspan="2"></td>
+<td class="s10" dir="ltr" colspan="2"></td>
+<td class="s56" dir="ltr"></td>
+<td class="s10" dir="ltr"></td>
+<td class="s58" dir="ltr" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R24" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">25</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" dir="ltr" colspan="3"></td>
+<td class="s10" dir="ltr" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R25" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">26</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R26" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">27</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R27" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">28</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R28" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">29</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R29" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">30</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R30" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">31</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R31" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">32</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R32" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">33</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R33" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">34</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R34" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">35</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R35" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">36</div></th>
+<td class="s27"></td>
+<td class="s32"></td>
+<td class="s32"></td>
+<td class="s56" colspan="3"></td>
+<td class="s10" colspan="3"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56" colspan="2"></td>
+<td class="s10" colspan="2"></td>
+<td class="s56"></td>
+<td class="s10"></td>
+<td class="s58" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R36" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">37</div></th>
+<td class="s27"></td>
+<td class="s33"></td>
+<td class="s33"></td>
+<td class="s57" colspan="3"></td>
+<td class="s33" colspan="3"></td>
+<td class="s33" colspan="2"></td>
+<td class="s57" colspan="2"></td>
+<td class="s33" colspan="2"></td>
+<td class="s57"></td>
+<td class="s33"></td>
+<td class="s54" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R37" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">38</div></th>
+<td class="s27"></td>
+<td class="s35"></td>
+<td class="s28" colspan="4">項　目</td>
+<td class="s28" colspan="3">〇　<span style="font-size:11pt;font-family:'Segoe UI Symbol',Arial;color:#000">✕</span></td>
+<td class="s36"></td>
+<td class="s37"></td>
+<td class="s37"></td>
+<td class="s38"></td>
+<td class="s38"></td>
+<td class="s37"></td>
+<td class="s37"></td>
+<td class="s37"></td>
+<td class="s37"></td>
+<td class="s37"></td>
+<td class="s39"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R38" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">39</div></th>
+<td class="s27"></td>
+<td class="s28">1</td>
+<td class="s35" colspan="4">外見確認</td>
+<td class="s28" dir="ltr" colspan="3"></td>
+<td class="s36" dir="ltr"></td>
+<td></td>
+<td></td>
+<td class="s40"></td>
+<td class="s40"></td>
+<td></td>
+<td></td>
+<td class="s41"></td>
+<td class="s41"></td>
+<td class="s41"></td>
+<td class="s42"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R39" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">40</div></th>
+<td class="s27"></td>
+<td class="s28">2</td>
+<td class="s35" colspan="4">寸法測定</td>
+<td class="s28" dir="ltr" colspan="3"></td>
+<td class="s36" dir="ltr"></td>
+<td></td>
+<td class="s43"></td>
+<td class="s10" colspan="2">最終検査員</td>
+<td></td>
+<td class="s43"></td>
+<td class="s10">出荷検査</td>
+<td class="s10">出荷承認</td>
+<td class="s11" colspan="2">出荷者</td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R40" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">41</div></th>
+<td class="s27"></td>
+<td class="s28">3</td>
+<td class="s35" colspan="4">幾何公差測定</td>
+<td class="s28" colspan="3"></td>
+<td class="s36"></td>
+<td></td>
+<td class="s43"></td>
+<td class="s44" colspan="2"></td>
+<td></td>
+<td class="s43"></td>
+<td class="s44"></td>
+<td class="s44"></td>
+<td class="s45" colspan="2"></td>
+</tr>
+<tr style="height:23px">
+<th id="942883767R41" style="height:23px" class="row-headers-background"><div class="row-header-wrapper" style="line-height:23px">42</div></th>
+<td class="s27"></td>
+<td class="s46">4</td>
+<td class="s47" dir="ltr" colspan="4">ミルシートと照合</td>
+<td class="s48" dir="ltr" colspan="3"></td>
+<td class="s49"></td>
+<td class="s49"></td>
+<td class="s51"></td>
+<td class="s52" dir="ltr" colspan="2"></td>
+<td class="s49"></td>
+<td class="s51"></td>
+<td class="s52"></td>
+<td class="s52" dir="ltr"></td>
+<td class="s53" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<script>
+(function(){
+  var tbody = document.querySelector('.waffle tbody');
+  if(!tbody) return;
+
+  // まず tbody 内のすべてのデータセルを編集可にする（初期化）
+  var tds = tbody.querySelectorAll('td');
+  tds.forEach(function(td){
+    td.setAttribute('contenteditable','true');
+    td.removeAttribute('aria-readonly');
+  });
+
+  // 構造的ラベルやタイトルは編集不可にするためのラベル一覧
+  var LABELS = [
+    '様式-1','流動票','流　動　票','大和電機工業株式会社','発行日','特機事業所','Rev.H','依頼主','No.',
+    '管理部門記入欄','会社名','製品名','図面番号','発送日','分納納期1','分納納期１','分納納期2','分納納期２',
+    '材質','フライス','購入先','材料寸法','縦','横','高','個数','材料価格','新規/リピート','製造/設計/転売','外注価格',
+    '業者1','業者２','業者2','業者3','業者4','役割','注文数','販売単価','作成者',
+    '工程の注意点','図面問い合わせ内容：','図面問い合わせ内容','回答：','回答',
+    '処理の有無','台待ち','いつ','誰が','誰に確認',
+    '工程管理記入欄','特別購入品','月','日','工程記入','作業時間','段取時間(分)','治工具','冶工具','作業時間(分)',
+    '外注又は加工者名','単価','品質確認者',
+    '項目','項　目','〇　✕','外見確認','寸法測定','幾何公差測定','ミルシートと照合','最終検査員','出荷検査','出荷承認','出荷者'
+  ];
+  function norm(s){ return (s||'').replace(/\s+/g,'').trim(); }
+  var labelSet = new Set(LABELS.map(norm));
+
+  // 共通のロック処理を関数化
+  function lock(td){
+    if(!td) return;
+    td.setAttribute('contenteditable','false');
+    td.setAttribute('aria-readonly','true');
+    td.classList.add('readonly-cell');
+    // フォーカス時のキャレットを出さない（念のため）
+    try{ td.blur(); }catch(e){}
+  }
+
+  // タイトル（s2）は常にロック。縦見出し等の s9 は「文字が入っているものだけ」ロックする（空セルは編集可）
+  tbody.querySelectorAll('td.s2, td.s9').forEach(function(td){
+    if(td.classList.contains('s2') || td.textContent.trim() !== ''){
+      lock(td);
+    }
+  });
+
+  // テキストがラベルに一致するセルをロック
+  tds.forEach(function(td){
+    var t = norm(td.textContent);
+    if(labelSet.has(t)){
+      lock(td);
+    }
+  });
+
+  // 背景色が灰色（#d9d9d9）になっているセルをロック
+  // getComputedStyle の戻りが "rgb(217, 217, 217)" になるためスペースを除去して判定
+  tds.forEach(function(td){
+    var bg = window.getComputedStyle(td).backgroundColor || '';
+    var bgNorm = bg.replace(/\s+/g,'').toLowerCase();
+    if(bgNorm === 'rgb(217,217,217)' || bgNorm === 'rgba(217,217,217,1)'){
+      lock(td);
+    }
+  });
+})();
+(function() {
+  // ===== 1. 日付フォーマット関数 =====
+  function formatISOToJPFull(iso) {
+    if (!iso) return '';
+    const parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    const [y, m, d] = parts;
+    return `${y}年${m.padStart(2,'0')}月${d.padStart(2,'0')}日`;
+  }
+  function formatISOToMMDD(iso) {
+    if (!iso) return '';
+    const parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    const m = parts[1].padStart(2,'0');
+    const d = parts[2].padStart(2,'0');
+    return `${m}/${d}`;
+  }
+  function splitISOToMMDD(iso) {
+    if (!iso) return {month: '', day: ''};
+    const parts = iso.split('-');
+    if (parts.length !== 3) return {month: '', day: ''};
+    return {
+      month: parts[1].padStart(2,'0'),
+      day:   parts[2].padStart(2,'0')
+    };
+  }
+
+  // ===== 2. 最初のデフォルトJSON =====
+  let headerJson = {
+    "基本情報": {
+      "発行日": "",
+      "依頼主": "",
+      "流動票番号": ""
+    },
+    "管理部門記入欄": {
+      "会社名": "",
+      "製品名": "",
+      "図面番号": "",
+      "発送日": "",
+      "分納期1": "",
+      "分納期2": "",
+      "材質": "",
+      "フライス": "",
+      "購入先": "",
+      "材料寸法": {
+        "縦": "",
+        "横": "",
+        "高さ": ""
+      },
+      "個数": 0,
+      "新規受注品かリピート品か": "",
+      "製造か設計か転売か": "",
+      "注文数": 0,
+      "作成者": "",
+      "関与業者": [
+        {
+          "業者名": "",
+          "役割": ""
+        },
+        {
+          "業者名": "",
+          "役割": ""
+        }
+      ],
+      "材料価格": 0,
+      "外注価格": 0,
+      "工程の注意点": "",
+      "図面問い合わせ内容": "",
+      "解答": "",
+      "販売単価": 0,
+      "確認履歴": [
+        {
+          "いつ": "",
+          "誰が": "",
+          "誰に": "",
+          "処理の有無": ""
+        }
+      ],
+      "多台待ち": 0
+    }
+  };
+
+  let detailJson = {
+    "工程管理記入欄":{
+      "流動票番号": "",
+      "図面番号": "",
+      "特別購入品": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "工程管理": [
+        {
+          "作業日": "",
+          "工程": "",
+          "作業時間": {
+            "開始": "",
+            "終了": ""
+          },
+          "段取時間(分)": 0,
+          "治工具": "",
+          "作業時間(分)": 0,
+          "外注または加工者名": "",
+          "単価": 0,
+          "品質確認者": ""
+        }
+      ]
+    },
+    "調査項目": {
+      "外観確認": "",
+      "寸法判定": "",
+      "幾何公差測定": "",
+      "ミルシート照合": "",
+      "最終検査員": "",
+      "最終検査員の日付": "",
+      "出荷調査": "",
+      "出荷調査の日付": "",
+      "出荷承認": "",
+      "出荷承認の日付": "",
+      "出荷者": "",
+      "出荷者の日付": ""
+    }
+  };
+
+  // ===== 3. テーブル構造をグリッドに展開（元コードと同じ考え方） =====
+  const tableBody = document.querySelector('.waffle tbody');
+  if (!tableBody) return;
+  const trs = Array.from(tableBody.querySelectorAll('tr'));
+  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
+  const maxCols = 20;
+  const grid = [];
+  const openSpans = Array(maxCols).fill(null);
+
+  trs.forEach((tr, rIndex) => {
+    const row = Array(maxCols).fill(null);
+    for (let c = 0; c < maxCols; c++) {
+      if (openSpans[c]) {
+        row[c] = openSpans[c].cell;
+        openSpans[c].rowsLeft--;
+        if (openSpans[c].rowsLeft === 0) {
+          openSpans[c] = null;
+        }
+      }
+    }
+    const cells = Array.from(tr.children).filter((el, idx) => !(idx === 0 && el.tagName === 'TH'));
+    let col = 0;
+    cells.forEach(td => {
+      while (col < maxCols && row[col] !== null) col++;
+      const colspan = parseInt(td.getAttribute('colspan') || '1', 10);
+      const rowspan = parseInt(td.getAttribute('rowspan') || '1', 10);
+      const cellObj = { el: td, r: rIndex + 1, c: col };
+      for (let c = col; c < col + colspan && c < maxCols; c++) {
+        row[c] = cellObj;
+        if (rowspan > 1) {
+          openSpans[c] = { rowsLeft: rowspan - 1, cell: cellObj };
+        }
+      }
+      col += colspan;
+    });
+    grid.push(row);
+  });
+  // --- 差し込みブロックA（READONLY適用の最小追加） ---
+function getTdByRC(rowNumber, colLetter) {
+  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
+  const colIndex = COLS.indexOf(colLetter.toUpperCase());
+  if (rowNumber < 1 || colIndex === -1) return null;
+  const row = grid[rowNumber - 1];
+  const cellObj = row && row[colIndex];
+  return cellObj && cellObj.el ? cellObj.el : null;
+}
+
+function lockTd(rowNumber, colLetter) {
+  const td = getTdByRC(rowNumber, colLetter);
+  if (!td) return;
+  td.setAttribute('contenteditable','false');
+  td.setAttribute('aria-readonly','true');
+  td.classList.add('readonly-cell');
+}
+
+function parseA1(a1){
+  const m = String(a1).match(/^([A-T])(\d{1,3})$/i);
+  if(!m) return null;
+  return { col: m[1].toUpperCase(), row: parseInt(m[2],10) };
+}
+
+function lockRange(a1Start, a1End){
+  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
+  const s = parseA1(a1Start);
+  const e = parseA1(a1End || a1Start);
+  if(!s || !e) return;
+
+  const cStart = Math.min(COLS.indexOf(s.col), COLS.indexOf(e.col));
+  const cEnd   = Math.max(COLS.indexOf(s.col), COLS.indexOf(e.col));
+  const rStart = Math.min(s.row, e.row);
+  const rEnd   = Math.max(s.row, e.row);
+
+  for(let r=rStart; r<=rEnd; r++){
+    for(let c=cStart; c<=cEnd; c++){
+      lockTd(r, COLS[c]);
+    }
+  }
+}
+
+// ここに編集不可にしたいセル/範囲を列挙（例）
+const READONLY_ITEMS = [
+  ["A2","A42"],
+  ["A1","R1"],["C2","E2"],["F2","H2"],["F3","H3"],["C4","F4"],
+  ["J38","T38"],["J39","T39"],["J40","L40"],["J41","L41"],["J42","L42"],["O40","P40"],["O41","P41"],["O42","P42"],
+];
+
+function applyReadOnlyItems(){
+  READONLY_ITEMS.forEach(item=>{
+    if(Array.isArray(item)) lockRange(item[0], item[1]);
+    else lockRange(item);
+  });
+}
+applyReadOnlyItems();
+
+  function setCell(rowNumber, colLetter, value) {
+    if (value === undefined || value === null) return;
+    const colIndex = COLS.indexOf(colLetter);
+    if (colIndex === -1) return;
+    const row = grid[rowNumber - 1];
+    if (!row) return;
+    const cellObj = row[colIndex];
+    if (!cellObj) return;
+    const td = cellObj.el;
+    td.textContent = value;
+    td.setAttribute('contenteditable', 'true');
+    td.removeAttribute('aria-readonly');
+  }
+// 表のセル値を読み取る共通関数（A1番地指定）
+function getCellValue(rowNumber, colLetter) {
+  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
+  const colIndex = COLS.indexOf(colLetter.toUpperCase());
+  if (colIndex === -1) return '';
+  const row = grid[rowNumber - 1];
+  if (!row) return '';
+  const cellObj = row[colIndex];
+  if (!cellObj || !cellObj.el) return '';
+  return cellObj.el.textContent.trim();
+}
+
+  // ===== 4. JSONを表に落とし込む本体関数 =====
+  function fillFromJson(hJson, dJson) {
+    const base = (hJson && hJson["基本情報"]) || {};
+    const mgmt = (hJson && hJson["管理部門記入欄"]) || {};
+
+    // 基本情報
+    setCell(3, 'C', formatISOToJPFull(base["発行日"]));
+    setCell(4, 'J', base["依頼主"]);
+    setCell(4, 'Q', base["流動票番号"]);
+
+    // 管理部門記入欄
+    setCell(6, 'C', mgmt["会社名"]);
+    setCell(6, 'I', mgmt["製品名"]);
+    setCell(6, 'O', mgmt["図面番号"]);
+    setCell(6, 'R', formatISOToMMDD(mgmt["発送日"]));
+
+    // 分納期1（E7 と G7）
+    setCell(7, 'E', formatISOToMMDD(mgmt["分納期1"] || mgmt["分納納期１"]));
+    setCell(7, 'G', formatISOToMMDD(mgmt["分納期1_2"] || ""));
+
+    // 分納期2（L7 と N7）
+    setCell(7, 'L', formatISOToMMDD(mgmt["分納期2"] || mgmt["分納納期２"]));
+    setCell(7, 'N', formatISOToMMDD(mgmt["分納期2_2"] || ""));
+
+
+    setCell(8, 'E', mgmt["材質"]);
+    setCell(8, 'L', mgmt["フライス"]);
+    setCell(8, 'P', mgmt["購入先"]);
+
+    if (mgmt["材料寸法"]) {
+      setCell(9, 'F', mgmt["材料寸法"]["縦"]);
+      setCell(9, 'J', mgmt["材料寸法"]["横"]);
+      setCell(9, 'M', mgmt["材料寸法"]["高さ"] || mgmt["材料寸法"]["高"]);
+    }
+
+    setCell(10, 'P', mgmt["個数"]);
+    setCell(9, 'R', mgmt["材料価格"]);
+
+    setCell(10, 'F', mgmt["新規受注品かリピート品か"] || mgmt["新規/リピート"]);
+    setCell(10, 'L', mgmt["製造か設計か転売か"] || mgmt["製造/設計/転売"]);
+    setCell(10, 'R', mgmt["外注価格"]);
+
+    if (Array.isArray(mgmt["関与業者"])) {
+      const g1 = mgmt["関与業者"][0];
+      const g2 = mgmt["関与業者"][1];
+      if (g1) {
+        setCell(11, 'E', g1["業者名"]);
+        setCell(11, 'K', g1["役割"]);
+      }
+      if (g2) {
+        setCell(12, 'E', g2["業者名"]);
+        setCell(12, 'K', g2["役割"]);
+      }
+    }
+
+    setCell(11, 'R', mgmt["販売単価"]);
+    setCell(12, 'P', mgmt["注文数"]);
+    setCell(12, 'R', mgmt["作成者"]);
+    // 折り返し
+    const colIndexR = "ABCDEFGHIJKLMNOPQRST".indexOf('R');
+    const cellCreator = grid[12 - 1][colIndexR];
+    if (cellCreator && cellCreator.el) {
+      cellCreator.el.classList.add('wrap-cell');
+    }
+
+    setCell(16, 'C', mgmt["工程の注意点"]);
+    const colIndexC = "ABCDEFGHIJKLMNOPQRST".indexOf('C');
+    const cellNote = grid[16 - 1][colIndexC];
+    if (cellNote && cellNote.el) {
+      cellNote.el.classList.add('wrap-cell');
+    }
+
+    setCell(18, 'G', mgmt["図面問い合わせ内容"]);
+    setCell(19, 'G', mgmt["解答"] || mgmt["回答"]);
+
+    const hist = Array.isArray(mgmt["確認履歴"]) ? mgmt["確認履歴"][0] : null;
+    if (hist) {
+      setCell(20, 'E', hist["処理の有無"]);
+      setCell(20, 'J', formatISOToMMDD(hist["いつ"]));
+      setCell(20, 'M', hist["誰が"]);
+      setCell(20, 'Q', hist["誰に"]);
+    }
+    if (mgmt["多台待ち"] !== undefined) {
+      setCell(20, 'G', mgmt["多台待ち"]);
+    }
+
+    // ===== 工程・調査項目 =====
+    const proc = (dJson && dJson["工程管理記入欄"]) || {};
+    const insp = (dJson && dJson["調査項目"]) || {};
+
+    // 特別購入品
+    const spItems = Array.isArray(proc["特別購入品"]) ? proc["特別購入品"] : [];
+    const spStartRow = 21;
+    const spStartColIndex = COLS.indexOf('H');
+    spItems.forEach((item, idx) => {
+      const row = spStartRow + Math.floor(idx / 7);
+      const col = COLS[spStartColIndex + (idx % 7)];
+      setCell(row, col, item);
+    });
+
+    // 工程管理
+    const jobs = Array.isArray(proc["工程管理"]) ? proc["工程管理"] : [];
+    const JOB_START_ROW = 24;
+    jobs.forEach((job, i) => {
+      const row = JOB_START_ROW + i;
+      if (row > 35) return;
+      let month = "", day = "";
+      if (job["作業日"]) {
+        const md = splitISOToMMDD(job["作業日"]);
+        month = md.month;
+        day = md.day;
+      }
+      setCell(row, 'C', month);
+      setCell(row, 'D', day);
+      setCell(row, 'E', job["工程"]);
+      let workTime = "";
+      if (job["作業時間"] && job["作業時間"]["開始"] && job["作業時間"]["終了"]) {
+        workTime = job["作業時間"]["開始"] + "～" + job["作業時間"]["終了"];
+      }
+      setCell(row, 'H', workTime);
+      setCell(row, 'K', job["段取時間(分)"]);
+      setCell(row, 'M', job["治工具"]);
+      setCell(row, 'O', job["作業時間(分)"]);
+      setCell(row, 'Q', job["外注または加工者名"] || job["外注又は加工者名"]);
+      setCell(row, 'R', job["単価"]);
+      setCell(row, 'S', job["品質確認者"]);
+    });
+
+    // 調査項目
+    setCell(39, 'G', insp["外観確認"] || insp["外見確認"]);
+    setCell(40, 'G', insp["寸法判定"] || insp["寸法測定"]);
+    setCell(41, 'G', insp["幾何公差測定"]);
+    setCell(42, 'G', insp["ミルシート照合"] || insp["ミルシートと照合"]);
+
+    setCell(41, 'M', formatISOToMMDD(insp["最終検査員の日付"]));
+    setCell(42, 'M', insp["最終検査員"]);
+
+    setCell(41, 'Q', formatISOToMMDD(insp["出荷調査の日付"]));
+    setCell(42, 'Q', insp["出荷調査"]);
+
+    setCell(41, 'R', formatISOToMMDD(insp["出荷承認の日付"]));
+    setCell(42, 'R', insp["出荷承認"]);
+
+    setCell(41, 'S', formatISOToMMDD(insp["出荷者の日付"]));
+    setCell(42, 'S', insp["出荷者"]);
+  }
+
+function rebuildJsonFromTable() {
+  // もともとの形をベースに上書きする
+  const newHeader = JSON.parse(JSON.stringify(headerJson));
+  const newDetail = JSON.parse(JSON.stringify(detailJson));
+
+  // --- 基本情報 ---
+  newHeader["基本情報"] = newHeader["基本情報"] || {};
+  newHeader["基本情報"]["発行日"]     = getCellValue(3, 'C');  // 2025年10月19日 など
+  newHeader["基本情報"]["依頼主"]     = getCellValue(4, 'J');
+  newHeader["基本情報"]["流動票番号"] = getCellValue(4, 'Q');
+
+  // --- 管理部門記入欄 ---
+  const mgmt = newHeader["管理部門記入欄"] || {};
+  mgmt["会社名"]              = getCellValue(6, 'C');
+  mgmt["製品名"]              = getCellValue(6, 'I');
+  mgmt["図面番号"]            = getCellValue(6, 'O');
+  mgmt["発送日"]              = getCellValue(6, 'R'); // mm/ddのまま入れる
+  const dn1Left  = getCellValue(7, 'E');  // E7
+  const dn1Right = getCellValue(7, 'G');  // G7
+  mgmt["分納期1"]   = dn1Left;
+  mgmt["分納期1_2"] = dn1Right;
+  // 必要なら互換キーもここでそろえる
+  mgmt["分納納期１"] = dn1Left;
+
+const dn2Left  = getCellValue(7, 'L');  // L7
+const dn2Right = getCellValue(7, 'N');  // N7
+mgmt["分納期2"]   = dn2Left;
+mgmt["分納期2_2"] = dn2Right;
+mgmt["分納納期２"] = dn2Left;
+
+
+
+  mgmt["材質"]                = getCellValue(8, 'E');
+  mgmt["フライス"]            = getCellValue(8, 'L');
+  mgmt["購入先"]              = getCellValue(8, 'P');
+  mgmt["材料寸法"] = {
+    "縦":   getCellValue(9, 'F'),
+    "横":   getCellValue(9, 'J'),
+    "高さ": getCellValue(9, 'M')
+  };
+  mgmt["個数"]                = getCellValue(10, 'P');
+  mgmt["材料価格"]            = getCellValue(9, 'R');
+  mgmt["新規/リピート"]       = getCellValue(10, 'F');
+  mgmt["製造/設計/転売"]      = getCellValue(10, 'L');
+  // 同義キーも同時に更新
+  mgmt["新規受注品かリピート品か"] = mgmt["新規/リピート"];
+  mgmt["製造か設計か転売か"]       = mgmt["製造/設計/転売"];
+  // 4行ぶん（業者1〜4：行11〜14、名前=E列／役割=K列）
+mgmt["関与業者"] = [
+  { "業者名": getCellValue(11, 'E'), "役割": getCellValue(11, 'K') },
+  { "業者名": getCellValue(12, 'E'), "役割": getCellValue(12, 'K') },
+  { "業者名": getCellValue(13, 'E'), "役割": getCellValue(13, 'K') },
+  { "業者名": getCellValue(14, 'E'), "役割": getCellValue(14, 'K') }
+];
+
+  mgmt["外注価格"]            = getCellValue(10, 'R');
+  mgmt["注文数"]              = getCellValue(12, 'P');
+  mgmt["販売単価"]            = getCellValue(11, 'R');
+  mgmt["作成者"]              = getCellValue(12, 'R');
+  mgmt["工程の注意点"]        = getCellValue(16, 'C');
+  mgmt["図面問い合わせ内容"]  = getCellValue(18, 'G');
+  mgmt["解答"]                = getCellValue(19, 'G');
+
+  // 確認履歴1行分だけ拾う
+  mgmt["確認履歴"] = [{
+    "処理の有無": getCellValue(20, 'E'),
+    "いつ":       getCellValue(20, 'J'),
+    "誰が":       getCellValue(20, 'M'),
+    "誰に":       getCellValue(20, 'Q')
+  }];
+  mgmt["多台待ち"] = getCellValue(20, 'G');
+
+  newHeader["管理部門記入欄"] = mgmt;
+
+  // --- 工程管理記入欄（最低限） ---
+  const proc = newDetail["工程管理記入欄"] || {};
+  const rows = [];
+  // 行24〜35が作業行なのでループで拾う
+  for (let r = 24; r <= 35; r++) {
+    const month = getCellValue(r, 'C');
+    const day   = getCellValue(r, 'D');
+    const kou   = getCellValue(r, 'E');
+    const time  = getCellValue(r, 'H');
+    const setup = getCellValue(r, 'K');
+    const jig   = getCellValue(r, 'M');
+    const workm = getCellValue(r, 'O');
+    const worker= getCellValue(r, 'Q');
+    const price = getCellValue(r, 'R');
+    const qc    = getCellValue(r, 'S');
+
+    // 全部空ならスキップ
+    if (!(month || day || kou || time || setup || jig || workm || worker || price || qc)) {
+      continue;
+    }
+
+    rows.push({
+      "作業日": month && day ? `-----${month}-${day}` : "", // 年と月が取れないのでダミー
+      "工程": kou,
+      "作業時間": {
+        "開始": time.split('～')[0] || "",
+        "終了": time.split('～')[1] || ""
+      },
+      "段取時間(分)": setup,
+      "治工具": jig,
+      "作業時間(分)": workm,
+      "外注または加工者名": worker,
+      "単価": price,
+      "品質確認者": qc
+    });
+  }
+  proc["工程管理"] = rows;
+  newDetail["工程管理記入欄"] = proc;
+
+  // --- 調査項目（39〜42行） ---
+  const insp = newDetail["調査項目"] || {};
+  insp["外観確認"]           = getCellValue(39, 'G');
+  insp["寸法判定"]           = getCellValue(40, 'G');
+  insp["幾何公差測定"]       = getCellValue(41, 'G');
+  insp["ミルシート照合"]     = getCellValue(42, 'G');
+  insp["最終検査員の日付"]   = getCellValue(41, 'M');
+  insp["最終検査員"]         = getCellValue(42, 'M');
+  insp["出荷調査の日付"]     = getCellValue(41, 'Q');
+  insp["出荷調査"]           = getCellValue(42, 'Q');
+  insp["出荷承認の日付"]     = getCellValue(41, 'R');
+  insp["出荷承認"]           = getCellValue(42, 'R');
+  insp["出荷者の日付"]       = getCellValue(41, 'S');
+  insp["出荷者"]             = getCellValue(42, 'S');
+  newDetail["調査項目"] = insp;
+
+  return { headerJson: newHeader, detailJson: newDetail };
+}
+
+  // ===== 5. ボタンのイベント =====
+  const applyBtn = document.getElementById('apply-json-btn');
+  const jsonInput = document.getElementById('json-input');
+  const printBtn = document.getElementById('print-pdf-btn');
+
+// 表のどこかが編集されたら JSON を再構築して textarea に反映
+if (tableBody && jsonInput) {
+  tableBody.addEventListener('input', function() {
+    const rebuilt = rebuildJsonFromTable();
+    headerJson = rebuilt.headerJson;
+    detailJson = rebuilt.detailJson;
+
+    // 2つのJSONを見やすく連結してテキストエリアへ
+    jsonInput.value =
+      JSON.stringify(headerJson, null, 2) + "\n" +
+      JSON.stringify(detailJson, null, 2);
+  });
+}
+
+function extractJsonObjects(rawText) {
+  // まずコードフェンス ```json ... ``` を消す（あってもなくてもOKにする）
+  const text = rawText
+    .replace(/```json/gi, '')
+    .replace(/```/g, '')
+    .trim();
+
+  const results = [];
+  let buf = '';
+  let depth = 0;
+  let inString = false;
+  let prev = '';
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    buf += ch;
+
+    // 文字列の中かどうか
+    if (ch === '"' && prev !== '\\') {
+      inString = !inString;
+    }
+
+    if (!inString) {
+      if (ch === '{') depth++;
+      if (ch === '}') depth--;
+    }
+
+    // 1つのJSONが終わった
+    if (depth === 0 && buf.trim()) {
+      const candidate = buf.trim();
+      if (candidate.startsWith('{') && candidate.endsWith('}')) {
+        results.push(JSON.parse(candidate));
+        buf = '';
+      }
+    }
+
+    prev = ch;
+  }
+
+  // 最後に何か残ってて、それがJSONなら読む
+  const rest = buf.trim();
+  if (rest) {
+    results.push(JSON.parse(rest));
+  }
+
+  return results;
+}
+if (applyBtn && jsonInput) {
+  applyBtn.addEventListener('click', function () {
+    const text = jsonInput.value.trim();
+    if (!text) return;
+
+    try {
+      // ここで複数JSONを一気に拾う
+      const jsonList = extractJsonObjects(text);
+
+      jsonList.forEach(obj => {
+        // もとの {"headerJson":..., "detailJson":...} 形式も許す
+        if (obj.headerJson || obj.detailJson) {
+          if (obj.headerJson) headerJson = obj.headerJson;
+          if (obj.detailJson) detailJson = obj.detailJson;
+          return;
+        }
+
+        // あなたが上に貼った1つ目のJSONの形
+        if (obj["基本情報"] || obj["管理部門記入欄"]) {
+          headerJson = obj;
+          return;
+        }
+
+        // あなたが下に貼った2つ目のJSONの形
+        if (obj["工程管理記入欄"] || obj["調査項目"]) {
+          detailJson = obj;
+          return;
+        }
+      });
+
+      // 最後に反映
+      fillFromJson(headerJson, detailJson);
+    } catch (e) {
+      alert('JSONの形式が正しくありません: ' + e.message);
+    }
+  });
+}
+
+
+  if (printBtn) {
+    printBtn.addEventListener('click', function() {
+      window.print();   // ブラウザの印刷ダイアログ → PDF保存が使える
+    });
+  }
+
+})();
+</script>
+
