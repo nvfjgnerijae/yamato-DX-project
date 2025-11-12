@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF分割 & n8n自動アップロード (成功ごとに2分待機)</title>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+
+</head>
+
+<body>
+  <h1>PDF分割 & n8n自動アップロード (1ページずつPOST／成功時2分待機)</h1>
+  <p>各ページのアップロードが<strong>成功</strong>した場合にのみ、次の送信まで<strong>2分待機</strong>します。</p>
+  <p>失敗やエラー時は待機せずに次のページに進みます。</p>
+  <div class="actions">
+    <button id="splitBtn" disabled>分割 & アップロード</button>
+    <input type="file" id="pdfFile" accept="application/pdf">
+  </div>
+  <div id="fileNameDisplay" class="file-info-box">
+     ここにファイルをドラッグ＆ドロップ<br>またはファイルを選択
+  </div>
+  <div id="result"></div>
+  <style>
+    /* --- 基本設定 --- */
+body {
+  font-family: sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 10px;
+
+  /* bodyの直下にある要素を、縦に並べて、すべて中央に配置する設定 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* body自体が画面の中央に来るように念のため設定 */
+  min-height: 90vh; 
+}
+
+/* --- テキスト要素 --- */
+h1 {
+  text-align: center;
+  margin-bottom: 0; /* h1とpの間隔を少し詰める */
+}
+
+p {
+  text-align: center;
+  max-width: 600px; /* 文章が長くなっても広がりすぎないようにする */
+}
+
+
+/* --- ボタンと入力欄のグループ --- */
+.actions {
+  display: flex;       /* この中の要素(button, input)を横並びにする */
+  align-items: center; /* 上下の高さを中央で揃える */
+  gap: 40px;           /* 要素間の隙間を10pxあける */
+  margin-top: 20px;
+}
+
+/* --- ボタンと入力欄の個別スタイル --- */
+button {
+  background: #6366f1;
+  color: white;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+
+  /* ★ボタンのサイズを調整: 上下8px、左右16pxの余白に */
+  padding: 8px 16px; 
+  font-size: 0.9rem; /* 文字サイズも少し調整 */
+  transition: background-color 0.3s, opacity 0.3s;
+}
+
+button:hover {
+  opacity: .9;
+}
+/* ↓↓ disabled属性がついている時のスタイルを追記 ↓↓ */
+button:disabled {
+background-color: #4a4e9b; /* 少し暗く、彩度を落とした色に */
+opacity:0.6; /* 半透明にする */
+cursor:not-allowed; /* 操作不可を示すカーソルに */
+}
+/* ファイル選択ボタンのスタイル（ブラウザ標準の見た目を少し整える） */
+input[type="file"] {
+  font-size: 0.9rem;
+}
+
+/* --- ファイル名表示ボックス --- */
+.file-info-box {
+  margin-top: 30px;
+  padding: 12px 15px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  width: 90%; /* 幅を少し広げる */
+  max-width: 1000px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- 処理結果の表示エリア --- */
+#result {
+  margin-top: 20px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.page-link {
+  display: block;
+  margin: 5px 0;
+  color: #a5b4fc;
+  text-decoration: none;
+}
+
+.page-link:hover {
+  text-decoration: underline;
+}
+
+.log-entry {
+  margin: 2px 0;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: #9ca3af;
+}
+  </style>
+
+  <script>
+  const fileInput = document.getElementById('pdfFile');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const splitBtn = document.getElementById('splitBtn'); // ★ボタンの要素も取得
+
+  // ファイルインプットで変更があった時に実行
+  fileInput.addEventListener('change', () => {
+    // ファイルが選択されているか確認
+    if (fileInput.files.length > 0) {
+      const fileName = fileInput.files[0].name;
+      fileNameDisplay.textContent = `選択中のファイル: ${fileName}`;
+      fileNameDisplay.style.color = '#e5e7eb';
+      
+      // ★ファイルが選択されたので、ボタンを有効化
+      splitBtn.disabled = false;
+
+    } else {
+      // ファイル選択がキャンセルされた場合
+      fileNameDisplay.innerHTML = 'ここにファイルをドラッグ＆ドロップまたはファイルを選択';
+      fileNameDisplay.style.color = '#9ca3af';
+
+      // ★ファイルが選択されていないので、ボタンを無効化
+      splitBtn.disabled = true;
+    }
+  });
+
+  // ファイルインプットで変更があった時（ファイルが選択された時）に実行
+  fileInput.addEventListener('change', () => {
+    // 1つ以上のファイルが選択されているか確認
+    if (fileInput.files.length > 0) {
+      // 選択されたファイルの名前を取得
+      const fileName = fileInput.files[0].name;
+      // ボックスにファイル名を表示
+      fileNameDisplay.textContent = `選択中のファイル: ${fileName}`;
+      // ファイルが選ばれたので文字色を明るくする
+      fileNameDisplay.style.color = '#e5e7eb';
+    } else {
+      // ファイル選択がキャンセルされた場合など
+      fileNameDisplay.textContent = ' ここにファイルをドラッグ＆ドロップまたはファイルを選択';
+      fileNameDisplay.style.color = '#9ca3af';
+    }
+  });
+  
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const upload = (url, formData) => new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.timeout = 60000;
+      xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
+      xhr.onerror = () => resolve(false);
+      xhr.ontimeout = () => resolve(false);
+      xhr.send(formData);
+    });
+
+    document.getElementById('splitBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('pdfFile');
+      const button = document.getElementById('splitBtn');
+      const resultDiv = document.getElementById('result');
+      if (!fileInput.files.length) { alert('PDFファイルを選択してください'); return; }
+      button.disabled = true;
+      fileInput.disabled = true;
+      resultDiv.innerHTML = '';
+      try {
+        const file = fileInput.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const totalPages = pdfDoc.getPageCount();
+        const webhookUrl = 'http://localhost:5678/webhook/261d8002-88b3-44dc-bbf1-4ca7ff3025a6';
+        resultDiv.innerHTML = `<p>PDFページ数: ${totalPages}</p>`;
+        for (let i = 0; i < totalPages; i++) {
+          const newPdf = await PDFLib.PDFDocument.create();
+          const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+          newPdf.addPage(copiedPage);
+          const pdfBytes = await newPdf.save();
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.textContent = `ページ ${i + 1} をダウンロード`;
+          a.download = `page_${i + 1}.pdf`;
+          a.className = 'page-link';
+          a.addEventListener('click', () => setTimeout(() => URL.revokeObjectURL(url), 0));
+          resultDiv.appendChild(a);
+          const formData = new FormData();
+          formData.append('file', blob, `page_${i + 1}.pdf`);
+          formData.append('title', `page_${i + 1}.pdf`);
+          formData.append('mimeType', 'application/pdf');
+          const logEntry = document.createElement('div');
+          logEntry.className = 'log-entry';
+          logEntry.textContent = `ページ ${i + 1} をアップロード中…`;
+          resultDiv.appendChild(logEntry);
+          const ok = await upload(webhookUrl, formData);
+          if (ok) {
+            logEntry.textContent = `ページ ${i + 1} アップロード完了`;
+            if (i < totalPages - 1) {
+              const waitMsg = document.createElement('div');
+              waitMsg.className = 'log-entry muted';
+              waitMsg.textContent = `ページ ${i + 1} 成功 → 次の送信まで2分待機中…`;
+              resultDiv.appendChild(waitMsg);
+              await sleep(120000);
+              waitMsg.textContent = `2分経過 → 次のページ（${i + 2}）を送信します。`;
+            }
+          } else {
+            logEntry.textContent = `ページ ${i + 1} アップロード失敗`;
+          }
+        }
+      } catch (e) {
+        alert('処理中にエラーが発生しました');
+      } finally {
+        document.getElementById('splitBtn').disabled = false;
+        document.getElementById('pdfFile').disabled = false;
+      }
+    });
+      // === ↓↓ ここからドラッグ＆ドロップ用のコードを追加 ↓↓ ===
+
+  // 対象となる要素を取得
+  const dropArea = document.getElementById('fileNameDisplay');
+
+  // ブラウザのデフォルトの動作（ファイルを開くなど）を無効化する関数
+  const preventDefaults = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  // ドラッグ中に見た目を変える関数
+  const highlight = () => {
+    dropArea.classList.add('drag-over');
+  };
+
+  // ドラッグが終わったら見た目を元に戻す関数
+  const unhighlight = () => {
+    dropArea.classList.remove('drag-over');
+  };
+
+  // ドロップされたファイルを処理する関数
+  const handleDrop = (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    // input要素にドロップされたファイルをセットする
+    fileInput.files = files;
+
+    // ファイル名を表示するために、手動でchangeイベントを発火させる
+    const event = new Event('change');
+    fileInput.dispatchEvent(event);
+  };
+
+
+  // ページ全体でドラッグ操作があった場合に、予期せぬ動作を防ぐ
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    document.body.addEventListener(eventName, preventDefaults, false);
+  });
+
+  // ドロップエリアにドラッグされた時のイベントリスナーを追加
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, highlight, false);
+  });
+
+  // ドロップエリアから離れた時のイベントリスナーを追加
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, unhighlight, false);
+  });
+
+  // ファイルがドロップされた時のイベントリスナーを追加
+  dropArea.addEventListener('drop', handleDrop, false);
+  </script>
+</body>
+
+</html>
