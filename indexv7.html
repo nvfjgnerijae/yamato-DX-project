@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON/テキスト全文検索ツール（ローカル専用） v1.4</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#121a31; --muted:#7b89a6; --text:#e6edf6; --accent:#5b9dff; --accent-2:#9cff6d; --danger:#ff6b6b; --border:#2a3656; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(1200px 600px at 20% -10%,#142041 0%,#0b1020 55%);color:var(--text)}
+    header{padding:18px 20px;border-bottom:1px solid var(--border);background:rgba(10,14,30,.6);position:sticky;top:0;backdrop-filter:blur(6px);z-index:10}
+    header h1{margin:0;font-size:20px;letter-spacing:.2px}
+    header small{color:var(--muted)}
+    main{max-width:1100px;margin:16px auto;padding:0 16px 48px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    label{font-size:13px;color:var(--muted)}
+    input[type="text"],.btn,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0f1630;color:var(--text);outline:none;font-size:14px}
+    input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
+    .searchbox{width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--border);background:#0f1630;color:var(--text);outline:none;font-size:16px;line-height:1.4;min-height:64px;resize:vertical}
+    .searchbox:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
+    .codebox{width:100%;padding:12px 12px;border-radius:12px;border:1px solid var(--border);background:#0b122a;color:var(--text);outline:none;font-size:14px;line-height:1.5;min-height:140px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;cursor:pointer}
+    .btn.tiny{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border);background:#0f1630;color:var(--text)}
+    .btn.tiny:hover{border-color:var(--accent)}
+    .matchbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:6px 8px 0;font-size:12px;color:var(--muted)}
+    .unipicker{position:relative;display:flex;gap:8px;align-items:center}
+    .menu{position:absolute;top:100%;left:0;background:#0f1630;border:1px solid var(--border);border-radius:12px;padding:6px;display:grid;gap:6px;min-width:220px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:20}
+    .menu[hidden]{display:none}
+    .menu button{padding:8px 10px;border:1px solid var(--border);background:#0b122a;color:var(--text);border-radius:8px;cursor:pointer;text-align:left}
+    .menu button:hover{border-color:var(--accent)}
+    .btn.primary{background:linear-gradient(180deg,#2a6fff,#1147c7);border-color:#1b49c7}
+    .btn.ghost{background:transparent}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .muted{color:var(--muted)}
+    .accent{color:var(--accent-2)}
+    .controls{display:grid;grid-template-columns:1fr;gap:10px;align-items:end}
+    .controls>*{min-width:0}
+    @media (min-width:860px){.controls{grid-template-columns:minmax(260px,1fr) minmax(520px,2fr) auto auto auto;align-items:end}}
+    .stat{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+    .stat strong{color:var(--text)}
+    .progress{height:8px;width:100%;background:#0d1430;border-radius:999px;border:1px solid var(--border);overflow:hidden}
+    .progress>span{display:block;height:100%;width:0%;background:linear-gradient(90deg,#44d3ff,#9cff6d);transition:width .2s ease}
+    .dropline{border:2px dashed var(--border);border-radius:16px;padding:22px;text-align:center;color:var(--muted)}
+    .dropline.dragover{border-color:var(--accent);background:rgba(91,157,255,.08);color:var(--text)}
+    .pastewrap{margin-top:12px;display:grid;gap:6px}
+    .paste-actions{display:flex;gap:10px;justify-content:flex-end}
+    .options{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:13px}
+    .options label{display:flex;gap:6px;align-items:center}
+    .results{margin-top:14px;display:grid;gap:10px}
+    .result{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#0e1733}
+    .result summary{list-style:none;cursor:pointer;padding:10px 12px}
+    .result summary::-webkit-details-marker{display:none}
+    .path{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#b9d4ff;font-size:12px}
+    .snippet{font-size:14px;color:#e7f2ff;margin-top:4px}
+    mark{background:rgba(255,235,59,.2);outline:1px solid rgba(255,235,59,.45);border-radius:3px;padding:0 2px}
+    pre.json{margin:0;padding:12px;overflow:auto;background:#0b122a;border-top:1px dashed var(--border);max-height:360px;white-space:pre}
+    pre.json .line{display:block;padding:0 12px;margin:0 -12px}
+    pre.json .line.hl{background:rgba(255,235,59,.10);outline:1px solid rgba(255,235,59,.22);border-left:3px solid rgba(255,235,59,.45)}
+    pre.json mark{background:rgba(255,235,59,.28);outline:1px solid rgba(255,235,59,.45);border-radius:2px;padding:0 2px}
+    .bad{color:var(--danger);font-size:13px}
+    .footer{margin-top:20px;color:var(--muted);font-size:12px;text-align:center}
+    .pill{display:inline-block;border:1px solid var(--border);background:#0f1630;border-radius:999px;padding:2px 8px;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JSON/テキスト全文検索ツール <small>— ブラウザ内で完結・データ送信なし / v1.4</small></h1>
+  </header>
+  <main>
+    <div class="row">
+      <section class="card">
+        <div class="controls" style="margin-bottom:10px;">
+          <div>
+            <label for="pickUnified">1) JSON/テキストを読み込む</label>
+            <div class="unipicker" id="unipicker">
+              <button id="pickUnified" class="btn primary" type="button">フォルダ/ファイルを選ぶ</button>
+              <div id="pickMenu" class="menu" hidden>
+                <button type="button" data-mode="dir">フォルダから読み込む</button>
+                <button type="button" data-mode="files">ファイルから読み込む</button>
+              </div>
+              <input id="pickerNative" type="file" style="display:none" />
+            </div>
+          </div>
+          <div>
+            <label for="query">2) 検索ワード</label>
+            <textarea id="query" class="searchbox" rows="3" placeholder="例: user.name  東京  エラーコード 1234 など（複数行OK）" disabled></textarea>
+          </div>
+          <div>
+            <label></label>
+            <button id="searchBtn" class="btn primary" disabled>検索</button>
+          </div>
+          <div>
+            <label></label>
+            <button id="clear" class="btn ghost" disabled>リセット</button>
+          </div>
+          <div>
+            <label></label>
+            <button id="exportBtn" class="btn ghost" disabled>一致結果をJSON保存</button>
+          </div>
+        </div>
+        <div id="drop" class="dropline">ドラッグ＆ドロップでもOK（フォルダ選択はブラウザ依存。Chrome/Edge推奨）</div>
+        <div class="pastewrap">
+          <label for="paste">または、JSON/テキストを直接ペースト</label>
+          <textarea id="paste" class="codebox" rows="8" placeholder="JSON全文 / NDJSON（1行1JSON） / --- 区切り / ```json ブロック```"></textarea>
+          <div class="paste-actions">
+            <button id="importPaste" class="btn primary" type="button">読み込む</button>
+            <button id="clearPaste" class="btn ghost" type="button">クリア</button>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:grid;gap:8px;">
+          <div class="stat">
+            <span class="pill" id="stat-files">ファイル: 0</span>
+            <span class="pill" id="stat-records">レコード: 0</span>
+            <span class="pill" id="stat-errors">エラー: 0</span>
+            <span class="pill" id="stat-time">処理時間: —</span>
+          </div>
+          <div class="progress" title="読み込み進捗"><span id="bar"></span></div>
+          <div id="status" class="muted">未読み込み</div>
+          <div class="options">
+            <label><input type="checkbox" id="opt-and" checked> 単語はAND一致（OFFでOR）</label>
+            <label><input type="checkbox" id="opt-key" checked> キー名も対象</label>
+            <label><input type="checkbox" id="opt-value" checked> 値も対象</label>
+            <label><input type="checkbox" id="opt-case"> 大文字小文字を区別</label>
+            <label><input type="checkbox" id="opt-regex"> 正規表現モード</label>
+            <select id="opt-limit" title="表示件数">
+              <option value="50">上位 50件</option>
+              <option value="100" selected>上位 100件</option>
+              <option value="250">上位 250件</option>
+              <option value="1000">上位 1000件</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </div>
+    <section class="card" style="margin-top:14px;">
+      <div class="stat" style="justify-content:space-between;">
+        <div><strong id="hits">0</strong> 件ヒット <span class="muted" id="hits-note"></span></div>
+        <div class="muted" id="last-query"></div>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
+    <div class="footer">© Local-only JSON Search. v1.4 — 検索語も正規化（NFKC+見た目類似記号の統一）に対応</div>
+  </main>
+  <script>
+    // ========= ユーティリティ =========
+    const $=(q,el=document)=>el.querySelector(q);
+    const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+    function escapeHTML(str){return String(str).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+    // 見た目が似ている文字を統一（ハイフン/マイナス/ダッシュ、波ダッシュ類、スペース類など）
+    function unifyConfusables(s){
+      if(s==null) return '';
+      let t = String(s).normalize('NFKC');
+      // ハイフン/マイナス/ダッシュ類 → '-'
+      t = t.replace(/[\u2212\u2010-\u2015\u2043\u207B\u208B\uFE58\uFE63\uFF0D]/g,'-');
+      // 波ダッシュ/全角チルダ/チルダ演算子など → '~'
+      t = t.replace(/[\u301C\u3030\uFF5E\u223C\u223E]/g,'~');
+      // 分数スラッシュ/除算スラッシュ → '/'
+      t = t.replace(/[\u2044\u2215]/g,'/');
+      // セットマイナス → '\\'
+      t = t.replace(/[\u2216]/g,'\\');
+      // 各種スペースを半角スペースに
+      t = t.replace(/[\u00A0\u2000-\u200B\u3000]/g,' ');
+      return t;
+    }
+    // 検索用正規化：NFKC + 類似記号の統一 + 小文字化（必要なら）
+    function normalize(s,cs=false){
+      const t = unifyConfusables(s);
+      return cs ? t : t.toLowerCase();
+    }
+
+    function toPairs(v,p=''){
+      const a=[];const t=Object.prototype.toString.call(v);
+      if(v===null||v===undefined){a.push([p||'(root)',String(v)])}
+      else if(t==='[object Object]'){
+        for(const[k,x]of Object.entries(v)){
+          const np=p?`${p}.${k}`:k;a.push(...toPairs(x,np))
+        }
+      }else if(t==='[object Array]'){
+        v.forEach((x,i)=>{const np=`${p}[${i}]`;a.push(...toPairs(x,np))})
+      }else{
+        a.push([p||'(root)',String(v)])
+      }
+      return a
+    }
+
+    function makeDocs(fp,json){
+      const docs=[];const isArr=Array.isArray(json);const items=isArr?json:[json];
+      for(let i=0;i<items.length;i++){
+        const item=items[i];
+        const pairs=toPairs(item);
+        const keyText=pairs.map(([k])=>k).join('\n');
+        const valueText=pairs.map(([_,v])=>v).join('\n');
+        const id=isArr?`${fp}#${i}`:fp;
+        docs.push({
+          id,filePath:fp,index:isArr?i:null,json:item,
+          keyText,valueText,
+          keyTextL:normalize(keyText),
+          valueTextL:normalize(valueText),
+          size:JSON.stringify(item)?.length||0
+        })
+      }
+      return docs
+    }
+
+    function makeTextDocs(fp,raw){
+      return [{
+        id:fp,filePath:fp,index:null,json:null,rawText:raw,
+        keyText:'',valueText:raw,
+        keyTextL:'',valueTextL:normalize(raw),
+        size:raw.length
+      }]
+    }
+
+    function countOccurrences(text,needle){let c=0,i=0;while(true){const idx=text.indexOf(needle,i);if(idx===-1)break;c++;i=idx+needle.length}return c}
+    function ext(name){const m=/\.([^\.\/\\]+)$/.exec(String(name).toLowerCase());return m?m[1]:''}
+    function isJsonName(name){return ext(name)==='json'}
+    function isTextName(name){return ['txt','log','md','markdown','csv','tsv','ndjson','yaml','yml','xml','ini','conf','properties','env','html','htm','css','js','ts','tsx','py','java','rb','go','rs','c','cpp','h','hpp','sh','bat','ps1','sql','toml','cfg'].includes(ext(name))}
+    function isAccepted(file){const t=(file.type||'').toLowerCase();return isJsonName(file.name)||t==='application/json'||t.startsWith('text/')||isTextName(file.name)}
+
+    function reSafe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+
+    // スニペット生成（検索は正規化トークン、ハイライトは元トークン）
+    function buildSnippetSmart(raw,tokensForHighlight,tokensForSearchNorm,around=80,cs=false,isRegex=false){
+      if(!raw)return'';let best=-1;let regs=null;const norm=normalize(raw,cs);
+      if(isRegex){
+        try{regs=tokensForHighlight.filter(Boolean).map(t=>new RegExp(t,cs?'g':'gi'))}catch(e){return''}
+        let bi=Infinity;for(const re of regs){re.lastIndex=0;const m=re.exec(raw);if(m&&m.index<bi){bi=m.index}}if(isFinite(bi))best=bi;
+      }else{
+        for(const tok of tokensForSearchNorm){const idx=norm.indexOf(tok);if(idx!==-1&&(best===-1||idx<best))best=idx}
+      }
+      if(best===-1)return'';const s=Math.max(0,best-around);const e=Math.min(raw.length,best+around);
+      let sn=escapeHTML(raw.slice(s,e));
+      if(isRegex){
+        for(const re of regs){sn=sn.replace(re,m=>`<mark>${escapeHTML(m)}</mark>`)}
+      }else{
+        for(const tok of tokensForHighlight){const re=new RegExp(reSafe(tok),cs?'g':'gi');sn=sn.replace(re,m=>`<mark>${escapeHTML(m)}</mark>`)}
+      }
+      return (s>0?'…':'')+sn+(e<raw.length?'…':'')
+    }
+
+    function compileRegs(tokens,cs,isRegex){if(!isRegex)return null;const out=[];for(const t of tokens){if(!t)continue;try{out.push(new RegExp(t,cs?'g':'gi'))}catch(e){return null}}return out}
+
+    function highlightLines(raw,tokens,cs=false,isRegex=false){
+      if(!raw)return'';const regs=compileRegs(tokens,cs,isRegex);const lines=raw.split('\n');
+      return lines.map(line=>{let hit=false;let esc=escapeHTML(line);
+        if(isRegex&&regs){for(const re of regs){re.lastIndex=0;if(re.test(line)){hit=true}esc=esc.replace(re,m=>`<mark>${escapeHTML(m)}</mark>`)}}
+        else{for(const tok of tokens){const re=new RegExp(reSafe(tok),cs?'g':'gi');if(re.test(line))hit=true;esc=esc.replace(re,m=>`<mark>${escapeHTML(m)}</mark>`)}}
+        const cls=hit?'line hl':'line';return `<span class="${cls}">${esc}</span>`
+      }).join('\n')
+    }
+
+    function getMatchCount(raw,tokens,cs=false,isRegex=false){
+      if(!raw)return 0;const regs=compileRegs(tokens,cs,isRegex);let n=0;
+      if(isRegex&&regs){for(const re of regs){re.lastIndex=0;const m=raw.match(re);if(m)n+=m.length}}
+      else{for(const tok of tokens){const re=new RegExp(reSafe(tok),cs?'g':'gi');const m=raw.match(re);if(m)n+=m.length}}
+      return n
+    }
+
+    // ========= 状態と要素参照 =========
+    const state={errors:[],docs:[],loadedFiles:0};
+    const picker=$('#pickerNative');
+    const pickWrap=$('#unipicker');
+    const btnUnified=$('#pickUnified');
+    const pickMenu=$('#pickMenu');
+    const inpQuery=$('#query');
+    const statusEl=$('#status');
+    const bar=$('#bar');
+    const statFiles=$('#stat-files');
+    const statRecords=$('#stat-records');
+    const statErrors=$('#stat-errors');
+    const statTime=$('#stat-time');
+    const resultsEl=$('#results');
+    const hitsEl=$('#hits');
+    const hitsNoteEl=$('#hits-note');
+    const lastQueryEl=$('#last-query');
+    const drop=$('#drop');
+    const btnClear=$('#clear');
+    const btnExport=$('#exportBtn');
+    const btnSearch=$('#searchBtn');
+    const optAnd=$('#opt-and');
+    const optKey=$('#opt-key');
+    const optValue=$('#opt-value');
+    const optCase=$('#opt-case');
+    const optRegex=$('#opt-regex');
+    const optLimit=$('#opt-limit');
+    const inpPaste=$('#paste');
+    const btnImportPaste=$('#importPaste');
+    const btnClearPaste=$('#clearPaste');
+
+    // ========= ファイル/ペースト取り込み =========
+    async function handleFiles(fileList){
+      const files=Array.from(fileList).filter(isAccepted);
+      if(files.length===0){statusEl.innerHTML='<span class="bad">対応するファイルが見つかりませんでした。</span>';return}
+      const t0=performance.now();let done=0;bar.style.width='0%';
+      for(const file of files){
+        try{
+          const text=await file.text();
+          const isJson=isJsonName(file.name)||((file.type||'').toLowerCase()==='application/json');
+          if(isJson){
+            try{const json=JSON.parse(text);const docs=makeDocs(file.webkitRelativePath||file.name,json);state.docs.push(...docs);state.loadedFiles+=1;}
+            catch(e){state.errors.push({file:file.name,error:String(e)})}
+          }else{
+            const docs=makeTextDocs(file.webkitRelativePath||file.name,text);state.docs.push(...docs);state.loadedFiles+=1;
+          }
+        }catch(e){state.errors.push({file:file.name,error:String(e)})}
+        done++;bar.style.width=`${Math.round((done/files.length)*100)}%`;
+        statFiles.textContent=`ファイル: ${state.loadedFiles}`;
+        statRecords.textContent=`レコード: ${state.docs.length}`;
+        statErrors.textContent=`エラー: ${state.errors.length}`;
+        statusEl.textContent=`読み込み中… (${done}/${files.length})`;
+        await sleep(0)
+      }
+      const ms=Math.round(performance.now()-t0);const sec=(ms/1000).toFixed(2);
+      statTime.textContent=`処理時間: ${sec}s`;
+      statusEl.textContent='読み込み完了';
+      inpQuery.disabled=false;btnSearch.disabled=false;btnClear.disabled=false;inpQuery.focus()
+    }
+
+    function parsePasted(text){
+      const items=[];const errors=[];
+      // 1) そのまま JSON
+      try{const v=JSON.parse(text);items.push(v);return {items,errors}}catch(e1){}
+      // 2) フェンス ```json ... ``` を抽出
+      const fenced=[...text.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)];
+      if(fenced.length){
+        for(let i=0;i<fenced.length;i++){
+          const block=fenced[i][1].trim();
+          try{items.push(JSON.parse(block))}catch(e){errors.push(`parse error in fenced block ${i+1}`)}
+        }
+        if(items.length){return {items,errors}}
+      }
+      // 3) NDJSON（1行1JSON）
+      const lines=text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>0);
+      let ok=0;for(let i=0;i<lines.length;i++){try{items.push(JSON.parse(lines[i]));ok++}catch(e){}}
+      if(ok>0){return {items,errors}}
+      // 4) --- 区切りで複数 JSON
+      const parts=text.split(/^---+$/m).map(s=>s.trim()).filter(Boolean);
+      for(let i=0;i<parts.length;i++){
+        try{items.push(JSON.parse(parts[i]))}
+        catch(e){errors.push(`parse error in block ${i+1}`)}
+      }
+      if(items.length){return {items,errors}}
+      // 5) 何もパースできなければテキストとして返す
+      return {items:[],errors:['parse failed']}
+    }
+
+    function handlePasteImport(){
+      const t=inpPaste.value||'';
+      if(!t.trim()){statusEl.innerHTML='<span class="bad">ペースト欄が空です。</span>';return}
+      const {items,errors}=parsePasted(t);
+      if(items.length){
+        let i=0;for(const it of items){const docs=makeDocs(`pasted.json${items.length>1?`#${i}`:''}`,it);state.docs.push(...docs);i++}
+        statRecords.textContent=`レコード: ${state.docs.length}`;
+        if(errors.length){state.errors.push(...errors.map((e,idx)=>({file:`paste:${idx}`,error:e})));statErrors.textContent=`エラー: ${state.errors.length}`;statusEl.innerHTML=`ペースト取り込み完了（エラー ${errors.length} 件）`}
+        else{statusEl.textContent='ペースト取り込み完了'}
+      }else{
+        const docs=makeTextDocs('pasted.txt',t);state.docs.push(...docs);statRecords.textContent=`レコード: ${state.docs.length}`;statusEl.textContent='テキストを取り込みました'
+      }
+      bar.style.width='100%';inpQuery.disabled=false;btnSearch.disabled=false;btnClear.disabled=false;if(!inpQuery.value)inpQuery.focus()
+    }
+
+    $('#importPaste').addEventListener('click',handlePasteImport);
+    $('#clearPaste').addEventListener('click',()=>{inpPaste.value=''});
+
+    async function collectFiles(handle,out){for await (const [,h] of handle.entries()){if(h.kind==='file'){const f=await h.getFile();out.push(f)}else if(h.kind==='directory'){await collectFiles(h,out)}}}
+    async function pickDirectoryAPI(){const dir=await window.showDirectoryPicker();const out=[];await collectFiles(dir,out);if(out.length)handleFiles(out)}
+    btnUnified.addEventListener('click',e=>{e.stopPropagation();pickMenu.hidden=!pickMenu.hidden; if(!('showDirectoryPicker' in window)){ const d=pickMenu.querySelector('[data-mode="dir"]'); if(d) d.style.display='none'; }});
+    document.addEventListener('click',e=>{if(!pickWrap.contains(e.target))pickMenu.hidden=true});
+    pickMenu.addEventListener('click',async e=>{
+      const b=e.target.closest('button');if(!b)return;pickMenu.hidden=true;const mode=b.dataset.mode;
+      if(mode==='dir'){
+        if('showDirectoryPicker' in window){
+          try{await pickDirectoryAPI()}catch(err){if(!(err&&err.name==='AbortError')){statusEl.innerHTML='<span class="bad">フォルダ読み込みに失敗しました。</span>'}}
+        }else{
+          picker.setAttribute('webkitdirectory','');picker.removeAttribute('multiple');picker.accept='';
+          picker.onchange=(ev)=>{if(ev.target.files?.length)handleFiles(ev.target.files);picker.value='';picker.removeAttribute('webkitdirectory');picker.accept='.json,.txt,.log,.md,.markdown,.csv,.tsv,.ndjson,.yaml,.yml,.xml,.ini,.conf,.properties,.env,.html,.htm,.css,.js,.ts,.tsx,.py,.java,.rb,.go,.rs,.c,.cpp,.h,.hpp,.sh,.bat,.ps1,.sql,.toml,.cfg,application/json,text/*';picker.multiple=true};
+          picker.click()
+        }
+      }else if(mode==='files'){
+        picker.removeAttribute('webkitdirectory');picker.multiple=true;picker.accept='.json,.txt,.log,.md,.markdown,.csv,.tsv,.ndjson,.yaml,.yml,.xml,.ini,.conf,.properties,.env,.html,.htm,.css,.js,.ts,.tsx,.py,.java,.rb,.go,.rs,.c,.cpp,.h,.hpp,.sh,.bat,.ps1,.sql,.toml,.cfg,application/json,text/*';
+        picker.onchange=(ev)=>{if(ev.target.files?.length)handleFiles(ev.target.files);picker.value=''};picker.click()
+      }
+    });
+
+    ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('dragover')}));
+    ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('dragover')}));
+    drop.addEventListener('drop',e=>{const items=e.dataTransfer?.items;const files=e.dataTransfer?.files;if(items&&items.length){const list=[];for(const it of items){if(it.kind==='file'){const f=it.getAsFile();if(f)list.push(f)}}if(list.length)handleFiles(list)}else if(files?.length){handleFiles(files)}});
+
+    // ========= 検索 =========
+    let searchTimer=0;function scheduleSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,120)}
+    inpQuery.addEventListener('input',scheduleSearch);
+    ;[optAnd,optKey,optValue,optCase,optRegex,optLimit].forEach(el=>el.addEventListener('change',runSearch));
+    btnSearch.addEventListener('click',runSearch);
+
+    function runSearch(){
+      const raw=inpQuery.value||'';
+      const isRegex=optRegex.checked;
+      const cs=optCase.checked; // 大文字小文字を区別するか
+      const useAND=optAnd.checked;
+      const limit=parseInt(optLimit.value,10)||100;
+
+      if(!raw.trim()){
+        resultsEl.innerHTML='';hitsEl.textContent='0';hitsNoteEl.textContent='';lastQueryEl.textContent='';btnExport.disabled=true;return
+      }
+
+      // 表示用の元トークン（スニペット/ハイライト用）
+      const tokensRaw = isRegex ? [raw] : raw.split(/\s+/).filter(Boolean);
+      // 照合用の正規化済トークン（NFKC + 類似記号統一 + 小文字化）
+      const tokensNorm = isRegex ? tokensRaw : tokensRaw.map(t => normalize(t, cs));
+
+      let regs=null; if(isRegex){ try{ regs=tokensRaw.map(t=>new RegExp(t,cs?'g':'gi')) }catch(e){ statusEl.innerHTML='<span class="bad">正規表現が不正です。</span>'; return } }
+
+      const scored=[];const t0=performance.now();
+      for(const doc of state.docs){
+        const hayKey = optKey.checked ? (cs ? unifyConfusables(doc.keyText) : doc.keyTextL) : '';
+        const hayVal = optValue.checked ? (cs ? unifyConfusables(doc.valueText) : doc.valueTextL) : '';
+        const hay=[hayKey,hayVal].filter(Boolean).join('\n');
+        if(!hay)continue;
+
+        let ok=true,score=0;
+        if(isRegex){
+          let total=0;for(const re of regs){
+            const k=optKey.checked?(doc.keyText.match(re)||[]).length:0;
+            const v=optValue.checked?(doc.valueText.match(re)||[]).length:0;
+            const hit=k+v; if(useAND&&hit===0){ok=false;break} total+=hit
+          }
+          score+=total;
+        }else{
+          for(const tok of tokensNorm){
+            const hit=countOccurrences(hay,tok);
+            if(useAND&&hit===0){ok=false;break}
+            score+=hit
+          }
+        }
+        if(!ok)continue;
+        score=score/Math.log10(20+(doc.size||0));
+        scored.push({doc,score})
+      }
+      scored.sort((a,b)=>b.score-a.score);
+      const top=scored.slice(0,limit);
+
+      resultsEl.innerHTML='';
+      const exportPayload=[];
+      for(const {doc,score} of top){
+        const container=document.createElement('details');
+        container.className='result';
+        const sum=document.createElement('summary');
+        const path=document.createElement('div');
+        path.className='path';
+        path.textContent=doc.id;
+        const snip=document.createElement('div');
+        snip.className='snippet';
+        const snippetSource=(optValue.checked?doc.valueText:doc.keyText)||(doc.valueText||doc.keyText);
+        snip.innerHTML=buildSnippetSmart(snippetSource, tokensRaw, tokensNorm, 100, cs, isRegex) || '<span class="muted">（スニペットなし）</span>';
+        sum.appendChild(path); sum.appendChild(snip); container.appendChild(sum);
+
+        const pre=document.createElement('pre');
+        pre.className='json';
+        const displayRaw=(doc.json!=null)?JSON.stringify(doc.json,null,2):(doc.rawText||'');
+        pre.innerHTML=highlightLines(displayRaw, tokensRaw, cs, isRegex);
+        container.appendChild(pre);
+
+        const matchCount=getMatchCount(displayRaw, tokensRaw, cs, isRegex);
+        const bar=document.createElement('div');
+        bar.className='matchbar';
+        bar.innerHTML=`<span>一致 <strong>${matchCount}</strong> 件</span><button class="btn tiny" type="button">先頭</button><button class="btn tiny" type="button">↑</button><button class="btn tiny" type="button">↓</button>`;
+        container.appendChild(bar);
+        let cur=0;const buttons=bar.querySelectorAll('button');
+        function els(){return Array.from(pre.querySelectorAll('.line.hl'))}
+        function scrollToIdx(i){const a=els();if(!a.length)return;const t=((i%a.length)+a.length)%a.length;const el=a[t];pre.scrollTop=el.offsetTop-12;cur=t}
+        buttons[0].addEventListener('click',()=>scrollToIdx(0));
+        buttons[1].addEventListener('click',()=>scrollToIdx(cur-1));
+        buttons[2].addEventListener('click',()=>scrollToIdx(cur+1));
+        container.addEventListener('toggle',()=>{if(container.open&&els().length){requestAnimationFrame(()=>scrollToIdx(0))}});
+
+        resultsEl.appendChild(container);
+        exportPayload.push({id:doc.id,file:doc.filePath,index:doc.index,score:Number(score.toFixed(4)),...(doc.json!=null?{json:doc.json}:{text:doc.rawText})})
+      }
+
+      hitsEl.textContent=String(scored.length);
+      hitsNoteEl.textContent=scored.length>top.length?`（表示は上位 ${top.length} 件まで）`:'';
+      const t1=performance.now();
+      lastQueryEl.textContent=`検索時間 ${((t1-t0)/1000).toFixed(3)}s  /  クエリ: ${raw}`;
+      btnExport.disabled=top.length===0;
+      btnExport.onclick=()=>{const blob=new Blob([JSON.stringify(exportPayload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`search_results_${Date.now()}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+    }
+
+    // ========= リセット =========
+    btnClear.addEventListener('click',()=>{
+      state.errors=[];state.docs=[];state.loadedFiles=0;picker.value='';
+      inpQuery.value='';inpQuery.disabled=true;resultsEl.innerHTML='';
+      hitsEl.textContent='0';hitsNoteEl.textContent='';lastQueryEl.textContent='';
+      bar.style.width='0%';statFiles.textContent='ファイル: 0';statRecords.textContent='レコード: 0';statErrors.textContent='エラー: 0';statTime.textContent='処理時間: —';
+      statusEl.textContent='リセットしました';btnClear.disabled=true;btnExport.disabled=true;btnSearch.disabled=true;inpPaste.value=''
+    });
+  </script>
+</body>
+</html>
