@@ -1,0 +1,884 @@
+<!--会社コードの編集は473行目のCUSTOMER_DBのところを変更する。-->
+<!--入力するテストデータ-->
+<!--
+```json
+{
+  "基本情報": {
+    "発行日": "2025-09-04",
+    "依頼主": "大和電機工業株式会社 特機事業所",
+    "流動票番号": "2509-0302-0"
+  },
+  "管理部門記入欄": {
+    "会社名": "大和電機工業(株)WF事業部",
+    "製品名": "ウエハ治具部品1",
+    "図面番号": "YASU22-WFJGK-00-003",
+    "発送日": "2025-09-04",
+    "分納期1": "",
+    "分納期2": "",
+    "材質": "S45C",
+    "フライス": "",
+    "購入先": "",
+    "材料寸法": {
+      "縦": "",
+      "横": "",
+      "高さ": ""
+    },
+    "個数": null,
+    "注文数": 2,
+    "新規受注品かリピート品か": "新規受注品",
+    "製造か設計か転売か": "",
+    "関与業者": [
+      {
+        "業者名": "川島商事",
+        "役割": "材共全加工"
+      },
+      {
+        "業者名": "西澤チーフ",
+        "役割": "組立"
+      }
+    ],
+    "材料価格": null,
+    "外注価格": null,
+    "販売単価": null,
+    "作成者": "内藤",
+    "工程の注意点": "",
+    "図面問い合わせ内容": "",
+    "解答": "",
+    "確認履歴": [],
+    "多台待ち": null
+  }
+}
+```
+```json
+{
+  "工程管理記入欄": {
+    "流動票番号": "2509-0302-0",
+    "図面番号": "YASU22-WFJGK-00-003",
+    "特別購入品": [],
+    "工程管理": []
+  },
+  "調査項目": {
+    "外観確認": "",
+    "寸法判定": "",
+    "幾何公差測定": "",
+    "ミルシート照合": "",
+    "最終検査員": "",
+    "最終検査員の日付": "",
+    "出荷調査": "",
+    "出荷調査の日付": "",
+    "出荷承認": "",
+    "出荷承認の日付": "",
+    "出荷者": "",
+    "出荷者の日付": ""
+  }
+}
+```
+```json
+{
+  "基本情報": {
+    "発行日": "",
+    "依頼主": "",
+    "流動票番号": ""
+  },
+  "管理部門記入欄": {
+    "会社名": "大和電機工業(株)WF事業部",
+    "製品名": "",
+    "図面番号": "YASU22-WFJGK. 00-003",
+    "発送日": "12/29",
+    "分納期1": "9/21",
+    "分納期2": "",
+    "材質": "フライス",
+    "フライス": "",
+    "購入先": "",
+    "材料寸法": {
+      "縦": "9999",
+      "横": "9999",
+      "高さ": "9999"
+    },
+    "個数": "",
+    "注文数": "",
+    "新規受注品かリピート品か": "",
+    "製造か設計か転売か": "",
+    "関与業者": [],
+    "材料価格": "",
+    "外注価格": "",
+    "販売単価": "",
+    "作成者": "",
+    "工程の注意点": "",
+    "図面問い合わせ内容": "",
+    "解答": "",
+    "確認履歴": [],
+    "多台待ち": ""
+  }
+}
+```
+```json```
+```json
+{
+  "基本情報": {
+    "発行日": "",
+    "依頼主": "ｄねういんれあｋｊ",
+    "流動票番号": "2505-0212-0"
+  },
+  "管理部門記入欄": {
+    "会社名": "依田製作所",
+    "製品名": "レール取付板",
+    "図面番号": "59G026-E009-03",
+    "発送日": "",
+    "分納期1": "",
+    "分納期2": "",
+    "材質": "S45C",
+    "フライス": "6F",
+    "購入先": "平和特殊鋼材(株)",
+    "材料寸法": {
+      "縦": "14",
+      "横": "22",
+      "高さ": "596"
+    },
+    "個数": 1,
+    "注文数": 1,
+    "新規受注品かリピート品か": "リピート品",
+    "製造か設計か転売か": "転売",
+    "関与業者": [],
+    "材料価格": 1300,
+    "外注価格": null,
+    "販売単価": 4700,
+    "作成者": "湯澤",
+    "工程の注意点": "(材料支給)@1,300⇒黒染め: @450",
+    "図面問い合わせ内容": "",
+    "解答": "",
+    "確認履歴": [
+      {
+        "いつ": "",
+        "誰が": "",
+        "誰に": "",
+        "処理の有無": "有"
+      }
+    ],
+    "多台待ち": 1
+  }
+}
+```
+-->
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>納品書</title>
+    <style>
+        :root {
+            --page-w: 210mm;
+            /* A4 横 */
+            --page-h: 297mm;
+            /* A4 縦 */
+            --border: 1px solid #000;
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", serif;
+            color: #000;
+            background: #f7f7f7;
+        }
+
+        /* ===== 画面用コントロール ===== */
+        .controls {
+            top: 0;
+            z-index: 1000;
+            background: #111;
+            color: #fff;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .controls textarea {
+            width: 100%;
+            min-height: 160px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        .controls .btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .controls button {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #111;
+            cursor: pointer;
+        }
+
+        .controls .status {
+            font-size: 12px;
+            color: #b9f6ca;
+        }
+
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            body {
+                background: #fff;
+            }
+        }
+
+        /* ===== 1ページ（=1納品書） ===== */
+        .page {
+            width: calc(var(--page-w) - 24mm);
+            min-height: calc(var(--page-h) - 24mm);
+            max-height: calc(var(--page-h) - 24mm);
+            background: #fff;
+            margin: 12mm auto;
+            padding: 10mm 8mm 12mm;
+            position: relative;
+            box-shadow: 0 0 0.8mm rgba(0, 0, 0, .15);
+            page-break-after: always;
+            overflow: hidden;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        /* ---- ヘッダ ---- */
+        .title-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            margin-top: 2mm;
+        }
+
+        .title {
+            grid-column: 2 / 3;
+            text-align: center;
+            font-size: 20pt;
+            letter-spacing: 6pt;
+        }
+
+        .doc-info {
+            position: absolute;
+            right: 8mm;
+            top: 6mm;
+            text-align: right;
+            font-size: 11pt;
+            line-height: 1.4;
+        }
+
+        .doc-info .no-label {
+            margin-top: 2mm;
+        }
+
+        .field[contenteditable="true"] {
+            outline: none;
+        }
+
+        .field-editable {
+            border-bottom: 1px dashed rgba(60, 60, 60, .35);
+        }
+
+        @media print {
+            .field-editable {
+                border-bottom: none;
+            }
+        }
+
+        /* ---- 宛名ブロック ---- */
+        .addr-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 10mm;
+            margin-top: 8mm;
+            align-items: start;
+        }
+
+        .to-box {
+            border: var(--border);
+            height: 18mm;
+            padding: 1.5mm 3mm;
+            white-space: pre-wrap;
+            line-height: 1.45;
+            font-size: 14pt;
+            cursor: text;
+        }
+
+        .to-box[contenteditable="true"] {
+            outline: none;
+        }
+
+        .to-line {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .to-box[aria-label="宛名欄"] {
+            width: 215px;
+            box-sizing: border-box;
+        }
+
+        .sama {
+            white-space: nowrap;
+            align-self: flex-end;
+            margin-top: 8mm;
+            font-size: 14pt;
+        }
+
+        .company {
+            text-align: right;
+            font-size: 11pt;
+            line-height: 1.3;
+        }
+
+        .company .name {
+            font-size: 13pt;
+        }
+
+        /* ---- 明細テーブル ---- */
+        table.sheet,
+        table.total {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 11pt;
+        }
+
+        table.sheet th,
+        table.sheet td,
+        table.total td {
+            border: var(--border);
+            padding: 2mm 2.2mm;
+            vertical-align: top;
+            word-break: break-all;
+        }
+
+        table.sheet thead th {
+            text-align: center;
+            font-weight: normal;
+        }
+
+        table.sheet td {
+            white-space: pre-wrap;
+        }
+
+        .col-no {
+            width: 10mm;
+            text-align: center;
+        }
+
+        .col-name {
+            width: auto;
+        }
+
+        .col-qty {
+            width: 18mm;
+            text-align: center;
+        }
+
+        .col-unit {
+            width: 15mm;
+            text-align: center;
+        }
+
+        .col-price {
+            width: 19mm;
+            text-align: right;
+        }
+
+        .col-amount {
+            width: 19mm;
+            text-align: right;
+        }
+
+        .col-note {
+            width: 36mm;
+        }
+
+        /* 備考 */
+
+        .foot-note {
+            margin: 3mm 0 2mm;
+            font-size: 10.5pt;
+        }
+
+        /* ---- 角印スペース ---- */
+        .stamps {
+            position: absolute;
+            right: 12mm;
+            bottom: 20mm;
+            display: grid;
+            grid-template-columns: 28mm 28mm 28mm;
+            gap: 4mm;
+        }
+
+        .stamps .box {
+            width: 28mm;
+            height: 28mm;
+            border: var(--border);
+        }
+
+        .sr-only {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 画面用コントロール -->
+    <div class="controls" role="region" aria-label="JSON入力コントロール">
+        <div>
+            <label for="json-input"><strong>納品書作成ツール</strong></label>
+            <textarea id="json-input" placeholder='JSONを貼り付けてください。&#13;&#10;・顧客番号があれば「1234-001」形式で自動採番します。'></textarea>
+            <div class="status" id="status"></div>
+        </div>
+        <div class="btns">
+            <button id="apply">情報を適用</button>
+            <button id="print">印刷 / 保存</button>
+        </div>
+    </div>
+
+    <!-- ページがここに生成されます -->
+    <div id="pages"></div>
+
+    <!-- テンプレート：1ページ=1納品書 -->
+    <template id="page-template">
+        <div class="page" role="document" aria-label="納品書">
+            <!-- 右上：日付・伝票番号 -->
+            <div class="doc-info">
+                <div><span class="doc-date field field-editable" contenteditable="true" aria-label="日付"></span></div>
+                <div class="no-label">
+                    No.
+                    <span class="doc-no field field-editable" contenteditable="true" aria-label="伝票番号"></span>
+                    <span class="doc-subno field field-editable" contenteditable="true" aria-label="サブ番号"
+                        style="display:none"></span>
+                </div>
+            </div>
+
+            <!-- タイトル -->
+            <div class="title-row">
+                <div></div>
+                <div class="title">納　品　書</div>
+                <div></div>
+            </div>
+
+            <!-- 宛名／会社情報 -->
+            <div class="addr-row">
+                <div class="to-line">
+                    <div class="to-box field-editable" contenteditable="true" aria-label="宛名欄" tabindex="0"></div>
+                    <div class="sama">様</div>
+                </div>
+                <div class="company field-editable" contenteditable="false">
+                    <div class="name">大和電機工業株式会社</div>
+                    <div>特機事業所</div>
+                    <div>〒393-0043</div>
+                    <div>長野県諏訪郡下諏訪町5451番地</div>
+                    <div>　</div>
+                </div>
+            </div>
+
+            <!-- 明細表 -->
+            <table class="sheet" aria-label="明細">
+                <colgroup>
+                    <col class="col-no">
+                    <col class="col-name">
+                    <col class="col-qty">
+                    <col class="col-unit">
+                    <col class="col-price">
+                    <col class="col-amount">
+                    <col class="col-note">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>　</th>
+                        <th>品　名／図　番</th>
+                        <th>数量</th>
+                        <th>単位</th>
+                        <th>単価</th>
+                        <th>金額</th>
+                        <th>備考</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-no">1</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-no">2</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-no">3</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-no">4</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-no">5</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-no">6</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true">個</td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                        <td class="field field-editable" contenteditable="true"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="foot-note">上記の通り納品致しました。</div>
+
+            <table class="total" aria-label="合計ブロック">
+                <colgroup>
+                    <col class="col-no">
+                    <col class="col-name">
+                    <col class="col-qty">
+                    <col class="col-unit">
+                    <col class="col-price">
+                    <col class="col-amount">
+                    <col class="col-note">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td colspan="4" style="text-align:center;">合　計</td>
+                        <td class="grand-total field field-editable" contenteditable="true" style="text-align:right;">
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="stamps" aria-hidden="true">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- PDF化ライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <script>
+        (() => {
+            const $ = (sel, root = document) => root.querySelector(sel);
+            const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+            const pagesRoot = $('#pages');
+            const tpl = $('#page-template');
+            const input = $('#json-input');
+            const status = $('#status');
+
+            // === 顧客番号の定義 (デモ用マッピング) ===
+            // JSONに顧客番号がない場合、会社名の一部が一致すればこの番号を使います
+            const CUSTOMER_DB = {
+                '小林工業': '1234',
+                '大和電機': '9999',
+                '依田製作所': '1111',
+                // 必要に応じて追加してください
+            };
+
+            const fmtMoney = (n) => {
+                if (n === '' || n === null || n === undefined || isNaN(n)) return '';
+                const s = Math.round(Number(n)).toString();
+                return s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            };
+            const parseNum = (v) => {
+                if (typeof v === 'number') return v;
+                if (!v) return 0;
+                const s = String(v).replace(/[^\d\-\.]/g, '');
+                const n = Number(s);
+                return isFinite(n) ? n : 0;
+            };
+            const todayJP = () => {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = d.getMonth() + 1;
+                const day = d.getDate();
+                return `${y}年${m}月${day}日`;
+            };
+
+            function smartParseMany(text) {
+                const raw = (text || '').trim();
+                if (!raw) return [];
+                const cleaned = raw.replace(/```json/gi, '').replace(/```/g, '');
+                try {
+                    const data = JSON.parse(cleaned);
+                    return Array.isArray(data) ? data : [data];
+                } catch (_) { }
+                const guessParts = cleaned.split(/}\s*(?=\{)/g).map((s, i, arr) => i < arr.length - 1 ? s + '}' : s);
+                const out = [];
+                for (const part of guessParts) {
+                    try { out.push(JSON.parse(part)); } catch (_) { }
+                }
+                return out;
+            }
+
+            function extractInfo(obj) {
+                // 会社名の取得
+                let toName = '';
+                const nameCandidates = [
+                    obj?.['管理部門記入欄']?.['会社名'],
+                    obj?.['基本情報']?.['会社名'],
+                    obj?.['基本情報']?.['依頼主'],
+                    obj?.['宛名'],
+                    obj?.['宛先'],
+                ];
+                for (const v of nameCandidates) {
+                    if (v && String(v).trim()) { toName = String(v).trim(); break; }
+                }
+
+                // 顧客番号の取得 (JSON優先 -> マッピング -> デフォルト0000)
+                let customerId = '';
+                // 1. JSON内の項目を探す
+                const idCandidates = [
+                    obj?.['管理部門記入欄']?.['顧客番号'],
+                    obj?.['基本情報']?.['顧客番号'],
+                    obj?.['顧客番号'],
+                    obj?.['顧客コード']
+                ];
+                for (const v of idCandidates) {
+                    if (v && String(v).trim()) { customerId = String(v).trim(); break; }
+                }
+                // 2. なければ会社名マッピングから探す
+                if (!customerId && toName) {
+                    for (const [key, val] of Object.entries(CUSTOMER_DB)) {
+                        if (toName.includes(key)) { customerId = val; break; }
+                    }
+                }
+                // 3. それでもなければデフォルト
+                if (!customerId) customerId = '0000';
+
+                return { toName, customerId };
+            }
+
+            function objToItem(obj) {
+                const k = obj?.['管理部門記入欄'] || {};
+                const name = [k['製品名'] || '', k['図面番号'] || ''].filter(Boolean).join('\n');
+                const qty = parseNum(k['個数']);
+                const price = parseNum(k['販売単価']);
+                const amount = qty * price;
+                const { toName, customerId } = extractInfo(obj);
+                return { name, qty, unit: '個', price, amount, note: '', toName, customerId };
+            }
+
+            function chunk(arr, size) {
+                const res = [];
+                for (let i = 0; i < arr.length; i += size) { res.push(arr.slice(i, i + size)); }
+                return res;
+            }
+
+            function clearPages() { pagesRoot.innerHTML = ''; }
+
+            function renderPages(items) {
+                clearPages();
+                const CHUNK = 6;
+
+                // 1. 会社名(toName)ごとにグループ化する
+                // 同じ会社なら顧客番号(customerId)も同じはずと仮定
+                const groupsMap = new Map();
+                items.forEach(item => {
+                    const key = item.toName || '（宛名なし）';
+                    if (!groupsMap.has(key)) groupsMap.set(key, []);
+                    groupsMap.get(key).push(item);
+                });
+
+                // 2. グループごとにページ生成処理
+                groupsMap.forEach((groupItems) => {
+                    // このグループ（会社）の顧客番号を取得（最初のデータのIDを使用）
+                    const groupCustId = groupItems[0].customerId || '0000';
+
+                    // 連番カウンタ（このバッチ処理内での連番）
+                    let seqCounter = 1;
+
+                    // データを6件ずつに分割（ページ分け）
+                    const chunks = chunk(groupItems, CHUNK);
+
+                    chunks.forEach((rows) => {
+                        const page = tpl.content.firstElementChild.cloneNode(true);
+
+                        // 日付
+                        $('.doc-date', page).textContent = todayJP();
+
+                        // ==== 自動採番ロジック ====
+                        // 形式: 顧客番号(4桁) - 連番(3桁)
+                        // 例: 1234-001
+                        const seqStr = String(seqCounter).padStart(3, '0');
+                        $('.doc-no', page).textContent = `${groupCustId}-${seqStr}`;
+                        seqCounter++; // 次のページのためにカウントアップ
+
+                        // 宛名
+                        const toNameInThisPage = rows.map(r => r && r.toName).find(v => v && v.trim()) || '';
+                        $('.to-box', page).textContent = toNameInThisPage;
+
+                        // 明細行
+                        const trows = $$('tbody tr', page);
+                        for (let i = 0; i < CHUNK; i++) {
+                            const tr = trows[i];
+                            const it = rows[i];
+                            const tds = $$('td', tr);
+                            if (!it) continue;
+                            tds[1].textContent = it.name || '';
+                            tds[2].textContent = it.qty !== undefined ? String(it.qty) : '';
+                            tds[3].textContent = it.unit || '個';
+                            tds[4].textContent = fmtMoney(it.price);
+                            tds[5].textContent = fmtMoney(it.amount);
+                            tds[6].textContent = it.note || '';
+                        }
+
+                        // 合計
+                        const pageTotal = rows.reduce((s, it) => s + parseNum(it && it.amount || 0), 0);
+                        $('.grand-total', page).textContent = fmtMoney(pageTotal);
+
+                        pagesRoot.appendChild(page);
+                    });
+                });
+
+                attachRecalcHandlers();
+            }
+
+            function recalcFromDOM() {
+                const pages = $$('.page');
+                pages.forEach(page => {
+                    let sum = 0;
+                    $$('tbody tr', page).forEach(tr => {
+                        const amt = parseNum($('.col-amount', tr)?.textContent || 0);
+                        sum += amt;
+                    });
+                    $('.grand-total', page).textContent = fmtMoney(sum);
+                });
+            }
+
+            function onMoneyOrQtyBlur(e) {
+                const td = e.target;
+                if (!td.matches('.col-price, .col-qty, .col-amount')) return;
+                if (td.classList.contains('col-price') || td.classList.contains('col-amount')) {
+                    td.textContent = fmtMoney(parseNum(td.textContent));
+                }
+                const tr = td.closest('tr'); if (!tr) return;
+                const qty = parseNum($('.col-qty', tr)?.textContent || 0);
+                const price = parseNum($('.col-price', tr)?.textContent || 0);
+                $('.col-amount', tr).textContent = fmtMoney(qty * price);
+                recalcFromDOM();
+            }
+
+            function attachRecalcHandlers() {
+                document.removeEventListener('blur', onMoneyOrQtyBlur, true);
+                document.addEventListener('blur', onMoneyOrQtyBlur, true);
+                document.removeEventListener('keydown', keyCommit, true);
+                document.addEventListener('keydown', keyCommit, true);
+            }
+            function keyCommit(e) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault(); document.activeElement?.blur();
+                }
+            }
+
+            // ===== ボタンイベント =====
+            $('#apply').addEventListener('click', () => {
+                try {
+                    const objs = smartParseMany(input.value);
+                    if (!objs.length) { status.textContent = 'JSONが読み取れませんでした。'; return; }
+
+                    // フィルタリング
+                    const validObjs = objs.filter(obj => {
+                        if (obj && obj['工程管理記入欄']) return false;
+                        if (!obj || !obj['管理部門記入欄']) return false;
+                        return true;
+                    });
+
+                    const items = validObjs.map(objToItem);
+                    if (!items.length) { status.textContent = '納品データがありません（除外されました）。'; return; }
+
+                    renderPages(items);
+                    status.textContent = `適用完了：${items.length}件 → 納品書作成`;
+                } catch (err) {
+                    console.error(err);
+                    status.textContent = 'エラーが発生しました。';
+                }
+            });
+
+            $('#print').addEventListener('click', async () => {
+                const pages = $$('.page');
+                if (!pages.length) { status.textContent = 'まずJSONを適用してください。'; return; }
+                const { jsPDF } = window.jspdf;
+                for (let i = 0; i < pages.length; i++) {
+                    const el = pages[i];
+                    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+                    const img = canvas.toDataURL('image/jpeg', 0.95);
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const w = pdf.internal.pageSize.getWidth();
+                    const h = pdf.internal.pageSize.getHeight();
+                    const ratio = Math.min(w / canvas.width, h / canvas.height);
+                    pdf.addImage(img, 'JPEG', (w - canvas.width * ratio) / 2, (h - canvas.height * ratio) / 2, canvas.width * ratio, canvas.height * ratio);
+                    pdf.autoPrint();
+                    window.open(pdf.output('bloburl'), '_blank');
+                }
+                status.textContent = '印刷ダイアログを開きました。';
+            });
+
+            renderPages([]);
+        })();
+    </script>
+</body>
+
+</html>
