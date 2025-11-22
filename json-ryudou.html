@@ -141,6 +141,28 @@ thead, th.row-headers-background {
   #control-panel {
     display: none;
   }
+/* 1. 表全体を囲むコンテナを横スクロール可能にする */
+.ritz.grid-container {
+    overflow-x: auto;      /* 横スクロールを有効化 */
+    width: 100vw;          /* 画面幅いっぱいに */
+    -webkit-overflow-scrolling: touch; /* iPhoneでスクロールを滑らかに */
+}
+
+/* 2. 表本体が勝手に縮まないように最小幅を固定する */
+.ritz .waffle {
+    table-layout: fixed;
+    min-width: 900px;      /* ★重要：表がこれ以上縮まないようにする */
+    width: auto !important;
+}
+
+/* 3. 縦書きセル(.s9)の表示を安定させる */
+.ritz .waffle .s9 {
+    white-space: nowrap !important; /* 絶対に折り返させない */
+    overflow: visible !important;   /* はみ出しても隠さない */
+    vertical-align: middle;         /* 上下中央揃え */
+    text-align: center;             /* 左右中央揃え */
+    line-height: 1.1;               /* 行間を少し詰める */
+}
 }
 
 </style>
