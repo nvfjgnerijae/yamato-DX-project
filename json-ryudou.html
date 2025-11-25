@@ -1,5 +1,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link type="text/css" rel="stylesheet" href="resources/sheet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 .ritz .waffle a{color:inherit}
 .ritz .waffle .s0,.ritz .waffle .s1{background-color:#fff;text-align:left;color:#000;font-family:Arial;font-size:8pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0 3px}
@@ -158,37 +159,38 @@ thead, th.row-headers-background {
 }
 ```
   '></textarea>
-  <div style="margin-top: 0.5rem; display:flex; gap:0.5rem;">
-    <button id="apply-json-btn">情報を反映</button>
-    <button id="print-pdf-btn">保存/印刷</button>
-  </div>
+  <div style="margin-top: 0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <button id="apply-json-btn">情報を反映</button>
+  <button id="save-pdf-btn">PDF保存</button>
+  <button id="print-btn">印刷</button>
+</div>
 </div>
 <div class="ritz grid-container" dir="ltr">
 <table class="waffle" cellspacing="0" cellpadding="0">
 <thead>
 <tr>
 <th class="row-header freezebar-origin-ltr"></th>
-                      <!--すべて+10px-->
+                      <!--すべて+00px-->
 <th id="942883767C0" style="width:0px" class="column-headers-background">A</th>
-<th id="942883767C1" style="width:44px" class="column-headers-background">B</th>
-<th id="942883767C2" style="width:38px" class="column-headers-background">C</th>
-<th id="942883767C3" style="width:39px" class="column-headers-background">D</th>
-<th id="942883767C4" style="width:44px" class="column-headers-background">E</th>
-<th id="942883767C5" style="width:46px" class="column-headers-background">F</th>
-<th id="942883767C6" style="width:31px" class="column-headers-background">G</th>
-<th id="942883767C7" style="width:16px" class="column-headers-background">H</th>
-<th id="942883767C8" style="width:46px" class="column-headers-background">I</th>
-<th id="942883767C9" style="width:40px" class="column-headers-background">J</th>
-<th id="942883767C10" style="width:57px" class="column-headers-background">K</th>
-<th id="942883767C11" style="width:34px" class="column-headers-background">L</th>
-<th id="942883767C12" style="width:43px" class="column-headers-background">M</th>
+<th id="942883767C1" style="width:34px" class="column-headers-background">B</th>
+<th id="942883767C2" style="width:28px" class="column-headers-background">C</th>
+<th id="942883767C3" style="width:29px" class="column-headers-background">D</th>
+<th id="942883767C4" style="width:34px" class="column-headers-background">E</th>
+<th id="942883767C5" style="width:36px" class="column-headers-background">F</th>
+<th id="942883767C6" style="width:21px" class="column-headers-background">G</th>
+<th id="942883767C7" style="width:6px" class="column-headers-background">H</th>
+<th id="942883767C8" style="width:36px" class="column-headers-background">I</th>
+<th id="942883767C9" style="width:30px" class="column-headers-background">J</th>
+<th id="942883767C10" style="width:47px" class="column-headers-background">K</th>
+<th id="942883767C11" style="width:24px" class="column-headers-background">L</th>
+<th id="942883767C12" style="width:33px" class="column-headers-background">M</th>
 <th id="942883767C13" style="width:45px" class="column-headers-background">N</th>
-<th id="942883767C14" style="width:31px" class="column-headers-background">O</th>
-<th id="942883767C15" style="width:55px" class="column-headers-background">P</th>
-<th id="942883767C16" style="width:86px" class="column-headers-background">Q</th>
-<th id="942883767C17" style="width:71px" class="column-headers-background">R</th>
-<th id="942883767C18" style="width:49px" class="column-headers-background">S</th>
-<th id="942883767C19" style="width:56px" class="column-headers-background">T</th>
+<th id="942883767C14" style="width:21px" class="column-headers-background">O</th>
+<th id="942883767C15" style="width:45px" class="column-headers-background">P</th>
+<th id="942883767C16" style="width:76px" class="column-headers-background">Q</th>
+<th id="942883767C17" style="width:61px" class="column-headers-background">R</th>
+<th id="942883767C18" style="width:39px" class="column-headers-background">S</th>
+<th id="942883767C19" style="width:46px" class="column-headers-background">T</th>
 </tr>
 </thead>
 <tbody>
@@ -1303,7 +1305,6 @@ mgmt["関与業者"] = [
   // ===== 5. ボタンのイベント =====
   const applyBtn = document.getElementById('apply-json-btn');
   const jsonInput = document.getElementById('json-input');
-  const printBtn = document.getElementById('print-pdf-btn');
 
 // 表のどこかが編集されたら JSON を再構築して textarea に反映
 if (tableBody && jsonInput) {
@@ -1405,9 +1406,35 @@ if (applyBtn && jsonInput) {
 }
 
 
+  // PDF保存ボタン（スマホ対応）
+  const savePdfBtn = document.getElementById('save-pdf-btn');
+  if (savePdfBtn) {
+    savePdfBtn.addEventListener('click', function() {
+      const table = document.querySelector('.ritz.grid-container');
+      const controlPanel = document.getElementById('control-panel');
+      
+      // コントロールパネルを一時的に非表示
+      controlPanel.style.display = 'none';
+      
+      const opt = {
+        margin:       [5, 5, 5, 5],
+        filename:     '流動票.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(table).save().then(function() {
+        controlPanel.style.display = 'block';
+      });
+    });
+  }
+
+  // 印刷ボタン（PC向け）
+  const printBtn = document.getElementById('print-btn');
   if (printBtn) {
     printBtn.addEventListener('click', function() {
-      window.print();   // ブラウザの印刷ダイアログ → PDF保存が使える
+      window.print();
     });
   }
 
