@@ -1405,7 +1405,6 @@ if (applyBtn && jsonInput) {
   });
 }
 
-
   // PDF保存ボタン（スマホ対応）
   const savePdfBtn = document.getElementById('save-pdf-btn');
   if (savePdfBtn) {
@@ -1416,19 +1415,23 @@ if (applyBtn && jsonInput) {
       // コントロールパネルを一時的に非表示
       controlPanel.style.display = 'none';
       
-      const opt = {
-        margin:       [5, 5, 5, 5],
-        filename:     '流動票.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      
-      html2pdf().set(opt).from(table).save().then(function() {
-        controlPanel.style.display = 'block';
-      });
+      // 非表示が反映されるのを待ってからPDF化
+      setTimeout(function() {
+        const opt = {
+          margin:       [5, 5, 5, 5],
+          filename:     '流動票.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(table).save().then(function() {
+          controlPanel.style.display = 'block';
+        });
+      }, 100);
     });
   }
+  
 
   // 印刷ボタン（PC向け）
   const printBtn = document.getElementById('print-btn');
