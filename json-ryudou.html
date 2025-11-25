@@ -118,7 +118,7 @@ thead, th.row-headers-background {
 @media print {
   #control-panel { display: none; }
   body { margin: 0; }
-  .waffle { zoom: 0.85; } /* 必要なら縮小 */
+  .waffle { zoom: 1.00; } /* 必要なら縮小 */
 }
 
 @media print {
@@ -161,8 +161,7 @@ thead, th.row-headers-background {
   '></textarea>
   <div style="margin-top: 0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
   <button id="apply-json-btn">情報を反映</button>
-  <button id="save-pdf-btn">PDF保存</button>
-  <button id="print-btn">印刷</button>
+  <button id="print-btn">保存/印刷</button>
 </div>
 </div>
 <div class="ritz grid-container" dir="ltr">
@@ -1403,36 +1402,7 @@ if (applyBtn && jsonInput) {
       alert('JSONの形式が正しくありません: ' + e.message);
     }
   });
-}
-
-  // PDF保存ボタン（スマホ対応）
-  const savePdfBtn = document.getElementById('save-pdf-btn');
-  if (savePdfBtn) {
-    savePdfBtn.addEventListener('click', function() {
-      const table = document.querySelector('.ritz.grid-container');
-      const controlPanel = document.getElementById('control-panel');
-      
-      // コントロールパネルを一時的に非表示
-      controlPanel.style.display = 'none';
-      
-      // 非表示が反映されるのを待ってからPDF化
-      setTimeout(function() {
-        const opt = {
-          margin:       [5, 5, 5, 5],
-          filename:     '流動票.pdf',
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        html2pdf().set(opt).from(table).save().then(function() {
-          controlPanel.style.display = 'block';
-        });
-      }, 100);
-    });
-  }
-  
-
+} 
   // 印刷ボタン（PC向け）
   const printBtn = document.getElementById('print-btn');
   if (printBtn) {
