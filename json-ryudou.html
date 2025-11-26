@@ -890,17 +890,18 @@ thead, th.row-headers-background {
 </table>
 </div>
 <script>
+// ========== 第1 IIFE: ラベルセルのreadonly化 ==========
 (function(){
-  var tbody = document.querySelector('.waffle tbody');
+  const tbody = document.querySelector('.waffle tbody');
   if(!tbody) return;
 
-  var tds = tbody.querySelectorAll('td');
-  tds.forEach(function(td){
+  const tds = tbody.querySelectorAll('td');
+  tds.forEach(td => {
     td.setAttribute('contenteditable','true');
     td.removeAttribute('aria-readonly');
   });
 
-  var LABELS = [
+  const LABEL_SET = new Set([
     '様式-1','流動票','流　動　票','大和電機工業株式会社','発行日','特機事業所','Rev.H','依頼主','No.',
     '管理部門記入欄','会社名','製品名','図面番号','発送日','分納納期1','分納納期１','分納納期2','分納納期２',
     '材質','フライス','購入先','材料寸法','縦','横','高','個数','材料価格','新規/リピート','製造/設計/転売','外注価格',
@@ -910,607 +911,458 @@ thead, th.row-headers-background {
     '工程管理記入欄','特別購入品','月','日','工程記入','作業時間','段取時間(分)','治工具','冶工具','作業時間(分)',
     '外注又は加工者名','単価','品質確認者',
     '項目','項　目','〇　✕','外見確認','寸法測定','幾何公差測定','ミルシートと照合','最終検査員','出荷検査','出荷承認','出荷者'
-  ];
-  function norm(s){ return (s||'').replace(/\s+/g,'').trim(); }
-  var labelSet = new Set(LABELS.map(norm));
+  ].map(s => s.replace(/\s+/g,'').trim()));
 
-  function lock(td){
+  const lock = td => {
     if(!td) return;
     td.setAttribute('contenteditable','false');
     td.setAttribute('aria-readonly','true');
     td.classList.add('readonly-cell');
     try{ td.blur(); }catch(e){}
-  }
+  };
 
-  tbody.querySelectorAll('td.s2, td.s9').forEach(function(td){
-    if(td.classList.contains('s2') || td.textContent.trim() !== ''){
-      lock(td);
-    }
+  tbody.querySelectorAll('td.s2, td.s9').forEach(td => {
+    if(td.classList.contains('s2') || td.textContent.trim() !== '') lock(td);
   });
 
-  tds.forEach(function(td){
-    var t = norm(td.textContent);
-    if(labelSet.has(t)){
-      lock(td);
-    }
+  tds.forEach(td => {
+    if(LABEL_SET.has((td.textContent||'').replace(/\s+/g,'').trim())) lock(td);
   });
 
-  tds.forEach(function(td){
-    var bg = window.getComputedStyle(td).backgroundColor || '';
-    var bgNorm = bg.replace(/\s+/g,'').toLowerCase();
-    if(bgNorm === 'rgb(217,217,217)' || bgNorm === 'rgba(217,217,217,1)'){
-      lock(td);
-    }
+  tds.forEach(td => {
+    const bg = (window.getComputedStyle(td).backgroundColor || '').replace(/\s+/g,'').toLowerCase();
+    if(bg === 'rgb(217,217,217)' || bg === 'rgba(217,217,217,1)') lock(td);
   });
 })();
-(function() {
-  function formatISOToJPFull(iso) {
-    if (!iso) return '';
-    const parts = iso.split('-');
-    if (parts.length !== 3) return iso;
-    const [y, m, d] = parts;
-    return `${y}年${m.padStart(2,'0')}月${d.padStart(2,'0')}日`;
-  }
-  function formatISOToMMDD(iso) {
-    if (!iso) return '';
-    const parts = iso.split('-');
-    if (parts.length !== 3) return iso;
-    const m = parts[1].padStart(2,'0');
-    const d = parts[2].padStart(2,'0');
-    return `${m}/${d}`;
-  }
-  function splitISOToMMDD(iso) {
-    if (!iso) return {month: '', day: ''};
-    const parts = iso.split('-');
-    if (parts.length !== 3) return {month: '', day: ''};
-    return {
-      month: parts[1].padStart(2,'0'),
-      day:   parts[2].padStart(2,'0')
-    };
-  }
 
+// ========== 第2 IIFE: メイン処理 ==========
+(function() {
+  // ----- 日付ユーティリティ (修正版) -----
+  const parseISO = iso => {
+    if (!iso) return null;
+    const s = String(iso).replace(/\//g, '-');
+    const p = s.split('-');
+    return p.length === 3 ? { y: p[0], m: p[1].padStart(2,'0'), d: p[2].padStart(2,'0') } : null;
+  };
+
+  const fmtJP = iso => { 
+    const d = parseISO(iso); 
+    return d ? `${d.y}年${d.m}月${d.d}日` : (iso || ''); 
+  };
+  
+  const fmtMD = iso => { 
+    const d = parseISO(iso); 
+    return d ? `${Number(d.m)}/${Number(d.d)}` : (iso || ''); 
+  };
+  
+  const splitMD = iso => { 
+    const d = parseISO(iso); 
+    return d ? { month: d.m, day: d.d } : { month: '', day: '' }; 
+  };
+
+  // ----- 初期JSON -----
   let headerJson = {
-    "基本情報": {
-      "発行日": "",
-      "依頼主": "",
-      "流動票番号": ""
-    },
+    "基本情報": { "発行日": "", "依頼主": "", "流動票番号": "" },
     "管理部門記入欄": {
-      "会社名": "",
-      "製品名": "",
-      "図面番号": "",
-      "発送日": "",
-      "分納期1": "",
-      "分納期2": "",
-      "材質": "",
-      "フライス": "",
-      "購入先": "",
-      "材料寸法": {
-        "縦": "",
-        "横": "",
-        "高さ": ""
-      },
-      "個数": 0,
-      "新規受注品かリピート品か": "",
-      "製造か設計か転売か": "",
-      "注文数": 0,
-      "作成者": "",
-      "関与業者": [
-        { "業者名": "", "役割": "" },
-        { "業者名": "", "役割": "" }
-      ],
-      "材料価格": 0,
-      "外注価格": 0,
-      "工程の注意点": "",
-      "図面問い合わせ内容": "",
-      "解答": "",
-      "販売単価": 0,
-      "確認履歴": [
-        { "いつ": "", "誰が": "", "誰に": "", "処理の有無": "" }
-      ],
+      "会社名": "", "製品名": "", "図面番号": "", "発送日": "",
+      "分納期1": "", "分納期2": "", "材質": "", "フライス": "", "購入先": "",
+      "材料寸法": { "縦": "", "横": "", "高さ": "" },
+      "個数": 0, "新規受注品かリピート品か": "", "製造か設計か転売か": "",
+      "注文数": 0, "作成者": "",
+      "関与業者": [{ "業者名": "", "役割": "" }, { "業者名": "", "役割": "" }],
+      "材料価格": 0, "外注価格": 0, "工程の注意点": "", "図面問い合わせ内容": "",
+      "解答": "", "販売単価": 0,
+      "確認履歴": [{ "いつ": "", "誰が": "", "誰に": "", "処理の有無": "" }],
       "多台待ち": 0
     }
   };
 
   let detailJson = {
-    "工程管理記入欄":{
-      "流動票番号": "",
-      "図面番号": "",
-      "特別購入品": ["","","",""],
-      "工程管理": [
-        {
-          "作業日": "",
-          "工程": "",
-          "作業時間": { "開始": "", "終了": "" },
-          "段取時間(分)": 0,
-          "治工具": "",
-          "作業時間(分)": 0,
-          "外注または加工者名": "",
-          "単価": 0,
-          "品質確認者": ""
-        }
-      ]
+    "工程管理記入欄": {
+      "流動票番号": "", "図面番号": "", "特別購入品": ["","","",""],
+      "工程管理": [{
+        "作業日": "", "工程": "", "作業時間": { "開始": "", "終了": "" },
+        "段取時間(分)": 0, "治工具": "", "作業時間(分)": 0,
+        "外注または加工者名": "", "単価": 0, "品質確認者": ""
+      }]
     },
     "調査項目": {
-      "外観確認": "",
-      "寸法判定": "",
-      "幾何公差測定": "",
-      "ミルシート照合": "",
-      "最終検査員": "",
-      "最終検査員の日付": "",
-      "出荷調査": "",
-      "出荷調査の日付": "",
-      "出荷承認": "",
-      "出荷承認の日付": "",
-      "出荷者": "",
-      "出荷者の日付": ""
+      "外観確認": "", "寸法判定": "", "幾何公差測定": "", "ミルシート照合": "",
+      "最終検査員": "", "最終検査員の日付": "", "出荷調査": "", "出荷調査の日付": "",
+      "出荷承認": "", "出荷承認の日付": "", "出荷者": "", "出荷者の日付": ""
     }
   };
 
+  // ----- グリッド構築 -----
   const tableBody = document.querySelector('.waffle tbody');
   if (!tableBody) return;
-  const trs = Array.from(tableBody.querySelectorAll('tr'));
-  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
-  const maxCols = 20;
-  const grid = [];
-  const openSpans = Array(maxCols).fill(null);
 
-  trs.forEach((tr, rIndex) => {
-    const row = Array(maxCols).fill(null);
-    for (let c = 0; c < maxCols; c++) {
+  const COLS = "ABCDEFGHIJKLMNOPQRST".split("");
+  const MAX_COLS = 20;
+  const grid = [];
+  const openSpans = Array(MAX_COLS).fill(null);
+
+  Array.from(tableBody.querySelectorAll('tr')).forEach((tr, rIndex) => {
+    const row = Array(MAX_COLS).fill(null);
+    for (let c = 0; c < MAX_COLS; c++) {
       if (openSpans[c]) {
         row[c] = openSpans[c].cell;
-        openSpans[c].rowsLeft--;
-        if (openSpans[c].rowsLeft === 0) {
-          openSpans[c] = null;
-        }
+        if (--openSpans[c].rowsLeft === 0) openSpans[c] = null;
       }
     }
     const cells = Array.from(tr.children).filter((el, idx) => !(idx === 0 && el.tagName === 'TH'));
     let col = 0;
     cells.forEach(td => {
-      while (col < maxCols && row[col] !== null) col++;
+      while (col < MAX_COLS && row[col] !== null) col++;
       const colspan = parseInt(td.getAttribute('colspan') || '1', 10);
       const rowspan = parseInt(td.getAttribute('rowspan') || '1', 10);
       const cellObj = { el: td, r: rIndex + 1, c: col };
-      for (let c = col; c < col + colspan && c < maxCols; c++) {
+      for (let c = col; c < col + colspan && c < MAX_COLS; c++) {
         row[c] = cellObj;
-        if (rowspan > 1) {
-          openSpans[c] = { rowsLeft: rowspan - 1, cell: cellObj };
-        }
+        if (rowspan > 1) openSpans[c] = { rowsLeft: rowspan - 1, cell: cellObj };
       }
       col += colspan;
     });
     grid.push(row);
   });
 
-function getTdByRC(rowNumber, colLetter) {
-  const colIndex = COLS.indexOf(colLetter.toUpperCase());
-  if (rowNumber < 1 || colIndex === -1) return null;
-  const row = grid[rowNumber - 1];
-  const cellObj = row && row[colIndex];
-  return cellObj && cellObj.el ? cellObj.el : null;
-}
+  // ----- セル操作関数 -----
+  const getTd = (row, col) => {
+    const ci = typeof col === 'string' ? COLS.indexOf(col.toUpperCase()) : col;
+    if (row < 1 || ci === -1) return null;
+    const cellObj = grid[row - 1]?.[ci];
+    return cellObj?.el || null;
+  };
 
-function lockTd(rowNumber, colLetter) {
-  const td = getTdByRC(rowNumber, colLetter);
-  if (!td) return;
-  td.setAttribute('contenteditable','false');
-  td.setAttribute('aria-readonly','true');
-  td.classList.add('readonly-cell');
-}
+  const lockTd = (row, col) => {
+    const td = getTd(row, col);
+    if (!td) return;
+    td.setAttribute('contenteditable', 'false');
+    td.setAttribute('aria-readonly', 'true');
+    td.classList.add('readonly-cell');
+  };
 
-function parseA1(a1){
-  const m = String(a1).match(/^([A-T])(\d{1,3})$/i);
-  if(!m) return null;
-  return { col: m[1].toUpperCase(), row: parseInt(m[2],10) };
-}
+  const parseA1 = a1 => {
+    const m = String(a1).match(/^([A-T])(\d{1,3})$/i);
+    return m ? { col: m[1].toUpperCase(), row: parseInt(m[2], 10) } : null;
+  };
 
-function lockRange(a1Start, a1End){
-  const s = parseA1(a1Start);
-  const e = parseA1(a1End || a1Start);
-  if(!s || !e) return;
+  const lockRange = (a1Start, a1End) => {
+    const s = parseA1(a1Start), e = parseA1(a1End || a1Start);
+    if (!s || !e) return;
+    const [cStart, cEnd] = [Math.min, Math.max].map(fn => fn(COLS.indexOf(s.col), COLS.indexOf(e.col)));
+    const [rStart, rEnd] = [Math.min, Math.max].map(fn => fn(s.row, e.row));
+    for (let r = rStart; r <= rEnd; r++)
+      for (let c = cStart; c <= cEnd; c++) lockTd(r, COLS[c]);
+  };
 
-  const cStart = Math.min(COLS.indexOf(s.col), COLS.indexOf(e.col));
-  const cEnd   = Math.max(COLS.indexOf(s.col), COLS.indexOf(e.col));
-  const rStart = Math.min(s.row, e.row);
-  const rEnd   = Math.max(s.row, e.row);
+  // readonly範囲の適用
+  [
+    ["A2","A42"], ["A1","R1"], ["C2","E2"], ["F2","H2"], ["F3","H3"], ["C4","F4"],
+    ["J38","T38"], ["J39","T39"], ["J40","L40"], ["J41","L41"], ["J42","L42"],
+    ["O40","P40"], ["O41","P41"], ["O42","P42"]
+  ].forEach(item => lockRange(item[0], item[1]));
 
-  for(let r=rStart; r<=rEnd; r++){
-    for(let c=cStart; c<=cEnd; c++){
-      lockTd(r, COLS[c]);
-    }
-  }
-}
-
-const READONLY_ITEMS = [
-  ["A2","A42"],
-  ["A1","R1"],["C2","E2"],["F2","H2"],["F3","H3"],["C4","F4"],
-  ["J38","T38"],["J39","T39"],["J40","L40"],["J41","L41"],["J42","L42"],["O40","P40"],["O41","P41"],["O42","P42"],
-];
-
-function applyReadOnlyItems(){
-  READONLY_ITEMS.forEach(item=>{
-    if(Array.isArray(item)) lockRange(item[0], item[1]);
-    else lockRange(item);
-  });
-}
-applyReadOnlyItems();
-
-  function setCell(rowNumber, colLetter, value) {
-    if (value === undefined || value === null) return;
-    const colIndex = COLS.indexOf(colLetter);
-    if (colIndex === -1) return;
-    const row = grid[rowNumber - 1];
-    if (!row) return;
-    const cellObj = row[colIndex];
-    if (!cellObj) return;
-    const td = cellObj.el;
-    td.textContent = value;
+  const setCell = (row, col, val) => {
+    if (val == null) return;
+    const td = getTd(row, col);
+    if (!td) return;
+    td.textContent = val;
     td.setAttribute('contenteditable', 'true');
     td.removeAttribute('aria-readonly');
-  }
+  };
 
-function getCellValue(rowNumber, colLetter) {
-  const colIndex = COLS.indexOf(colLetter.toUpperCase());
-  if (colIndex === -1) return '';
-  const row = grid[rowNumber - 1];
-  if (!row) return '';
-  const cellObj = row[colIndex];
-  if (!cellObj || !cellObj.el) return '';
-  return cellObj.el.textContent.trim();
-}
+  const getCell = (row, col) => getTd(row, col)?.textContent.trim() || '';
 
+  const addWrapClass = (row, col) => {
+    const cellObj = grid[row - 1]?.[COLS.indexOf(col)];
+    if (cellObj?.el) cellObj.el.classList.add('wrap-cell');
+  };
+
+  // ----- fillFromJson -----
   function fillFromJson(hJson, dJson) {
-    const base = (hJson && hJson["基本情報"]) || {};
-    const mgmt = (hJson && hJson["管理部門記入欄"]) || {};
+    const base = hJson?.["基本情報"] || {};
+    const mgmt = hJson?.["管理部門記入欄"] || {};
+    const proc = dJson?.["工程管理記入欄"] || {};
+    const insp = dJson?.["調査項目"] || {};
 
-    setCell(3, 'C', formatISOToJPFull(base["発行日"]));
+    // 基本情報
+    setCell(3, 'C', fmtJP(base["発行日"]));
     setCell(4, 'J', base["依頼主"]);
     setCell(4, 'Q', base["流動票番号"]);
 
-    setCell(6, 'C', mgmt["会社名"]);
-    setCell(6, 'I', mgmt["製品名"]);
-    setCell(6, 'O', mgmt["図面番号"]);
-    setCell(6, 'R', formatISOToMMDD(mgmt["発送日"]));
+    // 管理部門記入欄 - 単純マッピング
+    const mgmtMap = [
+      [6,'C',"会社名"], [6,'I',"製品名"], [6,'O',"図面番号"],
+      [8,'E',"材質"], [8,'L',"フライス"], [8,'P',"購入先"],
+      [10,'P',"個数"], [9,'R',"材料価格"], [10,'R',"外注価格"],
+      [11,'R',"販売単価"], [12,'P',"注文数"], [12,'R',"作成者"],
+      [16,'C',"工程の注意点"], [18,'G',"図面問い合わせ内容"]
+    ];
+    mgmtMap.forEach(([r, c, k]) => setCell(r, c, mgmt[k]));
 
-    setCell(7, 'E', formatISOToMMDD(mgmt["分納期1"] || mgmt["分納納期１"]));
-    setCell(7, 'G', formatISOToMMDD(mgmt["分納期1_2"] || ""));
-    setCell(7, 'L', formatISOToMMDD(mgmt["分納期2"] || mgmt["分納納期２"]));
-    setCell(7, 'N', formatISOToMMDD(mgmt["分納期2_2"] || ""));
+    // 日付フォーマットが必要なもの
+    setCell(6, 'R', fmtMD(mgmt["発送日"]));
+    setCell(7, 'E', fmtMD(mgmt["分納期1"] || mgmt["分納納期１"]));
+    setCell(7, 'G', fmtMD(mgmt["分納期1_2"] || ""));
+    setCell(7, 'L', fmtMD(mgmt["分納期2"] || mgmt["分納納期２"]));
+    setCell(7, 'N', fmtMD(mgmt["分納期2_2"] || ""));
 
-    setCell(8, 'E', mgmt["材質"]);
-    setCell(8, 'L', mgmt["フライス"]);
-    setCell(8, 'P', mgmt["購入先"]);
-
+    // 材料寸法
     if (mgmt["材料寸法"]) {
       setCell(9, 'F', mgmt["材料寸法"]["縦"]);
       setCell(9, 'J', mgmt["材料寸法"]["横"]);
       setCell(9, 'M', mgmt["材料寸法"]["高さ"] || mgmt["材料寸法"]["高"]);
     }
 
-    setCell(10, 'P', mgmt["個数"]);
-    setCell(9, 'R', mgmt["材料価格"]);
-
+    // 新規/リピート、製造/設計/転売
     setCell(10, 'F', mgmt["新規受注品かリピート品か"] || mgmt["新規/リピート"]);
     setCell(10, 'L', mgmt["製造か設計か転売か"] || mgmt["製造/設計/転売"]);
-    setCell(10, 'R', mgmt["外注価格"]);
 
-    if (Array.isArray(mgmt["関与業者"])) {
-      const g1 = mgmt["関与業者"][0];
-      const g2 = mgmt["関与業者"][1];
-      if (g1) {
-        setCell(11, 'E', g1["業者名"]);
-        setCell(11, 'K', g1["役割"]);
+    // 関与業者
+    const vendors = mgmt["関与業者"] || [];
+    [[11,'E','K'], [12,'E','K'], [13,'E','K'], [14,'E','K']].forEach(([r, cN, cR], i) => {
+      if (vendors[i]) {
+        setCell(r, cN, vendors[i]["業者名"]);
+        setCell(r, cR, vendors[i]["役割"]);
       }
-      if (g2) {
-        setCell(12, 'E', g2["業者名"]);
-        setCell(12, 'K', g2["役割"]);
-      }
-    }
+    });
 
-    setCell(11, 'R', mgmt["販売単価"]);
-    setCell(12, 'P', mgmt["注文数"]);
-    setCell(12, 'R', mgmt["作成者"]);
-    const colIndexR = "ABCDEFGHIJKLMNOPQRST".indexOf('R');
-    const cellCreator = grid[12 - 1][colIndexR];
-    if (cellCreator && cellCreator.el) {
-      cellCreator.el.classList.add('wrap-cell');
-    }
+    // 作成者にwrap-classを追加
+    addWrapClass(12, 'R');
 
-    setCell(16, 'C', mgmt["工程の注意点"]);
-    const colIndexC = "ABCDEFGHIJKLMNOPQRST".indexOf('C');
-    const cellNote = grid[16 - 1][colIndexC];
-    if (cellNote && cellNote.el) {
-      cellNote.el.classList.add('wrap-cell');
-    }
+    // 工程の注意点にwrap-class
+    addWrapClass(16, 'C');
 
-    setCell(18, 'G', mgmt["図面問い合わせ内容"]);
+    // 解答
     setCell(19, 'G', mgmt["解答"] || mgmt["回答"]);
 
+    // 確認履歴
     const hist = Array.isArray(mgmt["確認履歴"]) ? mgmt["確認履歴"][0] : null;
     if (hist) {
       setCell(20, 'E', hist["処理の有無"]);
-      setCell(20, 'J', formatISOToMMDD(hist["いつ"]));
+      setCell(20, 'J', fmtMD(hist["いつ"]));
       setCell(20, 'M', hist["誰が"]);
       setCell(20, 'Q', hist["誰に"]);
     }
-    if (mgmt["多台待ち"] !== undefined) {
-      setCell(20, 'G', mgmt["多台待ち"]);
-    }
+    if (mgmt["多台待ち"] !== undefined) setCell(20, 'G', mgmt["多台待ち"]);
 
-    const proc = (dJson && dJson["工程管理記入欄"]) || {};
-    const insp = (dJson && dJson["調査項目"]) || {};
-
+    // 特別購入品 (修正版)
     const spItems = Array.isArray(proc["特別購入品"]) ? proc["特別購入品"] : [];
-    const spStartRow = 21;
-    const spStartColIndex = COLS.indexOf('H');
+    const spMap = [
+      { r: 21, c: 'H' },
+      { r: 22, c: 'H' },
+      { r: 21, c: 'O' },
+      { r: 22, c: 'O' }
+    ];
+
     spItems.forEach((item, idx) => {
-      const row = spStartRow + Math.floor(idx / 7);
-      const col = COLS[spStartColIndex + (idx % 7)];
-      setCell(row, col, item);
+      if (idx < spMap.length) {
+        setCell(spMap[idx].r, spMap[idx].c, item);
+      }
     });
 
+    // 工程管理
     const jobs = Array.isArray(proc["工程管理"]) ? proc["工程管理"] : [];
-    const JOB_START_ROW = 24;
+    const JOB_START = 24, JOB_END = 35;
+    const JOB_COLS = ['C','D','E','H','K','M','O','Q','R','S'];
+
     jobs.forEach((job, i) => {
-      const row = JOB_START_ROW + i;
-      if (row > 35) return;
-      let month = "", day = "";
-      if (job["作業日"]) {
-        const md = splitISOToMMDD(job["作業日"]);
-        month = md.month;
-        day = md.day;
-      }
-      setCell(row, 'C', month);
-      setCell(row, 'D', day);
-      setCell(row, 'E', job["工程"]);
-      let workTime = "";
-      if (job["作業時間"] && job["作業時間"]["開始"] && job["作業時間"]["終了"]) {
-        workTime = job["作業時間"]["開始"] + "～" + job["作業時間"]["終了"];
-      }
-      setCell(row, 'H', workTime);
-      setCell(row, 'K', job["段取時間(分)"]);
-      setCell(row, 'M', job["治工具"]);
-      setCell(row, 'O', job["作業時間(分)"]);
-      setCell(row, 'Q', job["外注または加工者名"] || job["外注又は加工者名"]);
-      setCell(row, 'R', job["単価"]);
-      setCell(row, 'S', job["品質確認者"]);
+      const row = JOB_START + i;
+      if (row > JOB_END) return;
+      const md = splitMD(job["作業日"]);
+      const time = job["作業時間"];
+      const workTime = (time?.["開始"] && time?.["終了"]) ? `${time["開始"]}～${time["終了"]}` : "";
+      const vals = [
+        md.month, md.day, job["工程"], workTime,
+        job["段取時間(分)"], job["治工具"], job["作業時間(分)"],
+        job["外注または加工者名"] || job["外注又は加工者名"],
+        job["単価"], job["品質確認者"]
+      ];
+      JOB_COLS.forEach((col, j) => setCell(row, col, vals[j]));
     });
 
-    setCell(39, 'G', insp["外観確認"] || insp["外見確認"]);
-    setCell(40, 'G', insp["寸法判定"] || insp["寸法測定"]);
-    setCell(41, 'G', insp["幾何公差測定"]);
-    setCell(42, 'G', insp["ミルシート照合"] || insp["ミルシートと照合"]);
+    // 調査項目
+    const inspG = [
+      [39, ["外観確認","外見確認"]], [40, ["寸法判定","寸法測定"]],
+      [41, ["幾何公差測定"]], [42, ["ミルシート照合","ミルシートと照合"]]
+    ];
+    inspG.forEach(([r, keys]) => setCell(r, 'G', keys.map(k => insp[k]).find(v => v)));
 
-    setCell(41, 'M', formatISOToMMDD(insp["最終検査員の日付"]));
-    setCell(42, 'M', insp["最終検査員"]);
+    // 検査員・出荷情報
+    const inspDate = [
+      [41,'M',"最終検査員の日付"], [41,'Q',"出荷調査の日付"],
+      [41,'R',"出荷承認の日付"], [41,'S',"出荷者の日付"]
+    ];
+    inspDate.forEach(([r, c, k]) => setCell(r, c, fmtMD(insp[k])));
 
-    setCell(41, 'Q', formatISOToMMDD(insp["出荷調査の日付"]));
-    setCell(42, 'Q', insp["出荷調査"]);
-
-    setCell(41, 'R', formatISOToMMDD(insp["出荷承認の日付"]));
-    setCell(42, 'R', insp["出荷承認"]);
-
-    setCell(41, 'S', formatISOToMMDD(insp["出荷者の日付"]));
-    setCell(42, 'S', insp["出荷者"]);
+    const inspName = [
+      [42,'M',"最終検査員"], [42,'Q',"出荷調査"], [42,'R',"出荷承認"], [42,'S',"出荷者"]
+    ];
+    inspName.forEach(([r, c, k]) => setCell(r, c, insp[k]));
   }
 
-function rebuildJsonFromTable() {
-  const newHeader = JSON.parse(JSON.stringify(headerJson));
-  const newDetail = JSON.parse(JSON.stringify(detailJson));
+  // ----- rebuildJsonFromTable -----
+  function rebuildJsonFromTable() {
+    const newHeader = JSON.parse(JSON.stringify(headerJson));
+    const newDetail = JSON.parse(JSON.stringify(detailJson));
 
-  newHeader["基本情報"] = newHeader["基本情報"] || {};
-  newHeader["基本情報"]["発行日"]     = getCellValue(3, 'C');
-  newHeader["基本情報"]["依頼主"]     = getCellValue(4, 'J');
-  newHeader["基本情報"]["流動票番号"] = getCellValue(4, 'Q');
+    // 基本情報
+    newHeader["基本情報"] = newHeader["基本情報"] || {};
+    newHeader["基本情報"]["発行日"] = getCell(3, 'C');
+    newHeader["基本情報"]["依頼主"] = getCell(4, 'J');
+    newHeader["基本情報"]["流動票番号"] = getCell(4, 'Q');
 
-  const mgmt = newHeader["管理部門記入欄"] || {};
-  mgmt["会社名"]              = getCellValue(6, 'C');
-  mgmt["製品名"]              = getCellValue(6, 'I');
-  mgmt["図面番号"]            = getCellValue(6, 'O');
-  mgmt["発送日"]              = getCellValue(6, 'R');
-  const dn1Left  = getCellValue(7, 'E');
-  const dn1Right = getCellValue(7, 'G');
-  mgmt["分納期1"]   = dn1Left;
-  mgmt["分納期1_2"] = dn1Right;
-  mgmt["分納納期１"] = dn1Left;
+    // 管理部門記入欄
+    const mgmt = newHeader["管理部門記入欄"] || {};
+    
+    const mgmtSimple = [
+      ['会社名',6,'C'], ['製品名',6,'I'], ['図面番号',6,'O'], ['発送日',6,'R'],
+      ['材質',8,'E'], ['フライス',8,'L'], ['購入先',8,'P'],
+      ['外注価格',10,'R'], ['注文数',12,'P'], ['販売単価',11,'R'], ['作成者',12,'R'],
+      ['工程の注意点',16,'C'], ['図面問い合わせ内容',18,'G'], ['解答',19,'G']
+    ];
+    mgmtSimple.forEach(([k, r, c]) => mgmt[k] = getCell(r, c));
 
-  const dn2Left  = getCellValue(7, 'L');
-  const dn2Right = getCellValue(7, 'N');
-  mgmt["分納期2"]   = dn2Left;
-  mgmt["分納期2_2"] = dn2Right;
-  mgmt["分納納期２"] = dn2Left;
+    // 分納期
+    const dn1L = getCell(7, 'E'), dn1R = getCell(7, 'G');
+    const dn2L = getCell(7, 'L'), dn2R = getCell(7, 'N');
+    Object.assign(mgmt, {
+      "分納期1": dn1L, "分納期1_2": dn1R, "分納納期１": dn1L,
+      "分納期2": dn2L, "分納期2_2": dn2R, "分納納期２": dn2L
+    });
 
-  mgmt["材質"]                = getCellValue(8, 'E');
-  mgmt["フライス"]            = getCellValue(8, 'L');
-  mgmt["購入先"]              = getCellValue(8, 'P');
-  mgmt["材料寸法"] = {
-    "縦":   getCellValue(9, 'F'),
-    "横":   getCellValue(9, 'J'),
-    "高さ": getCellValue(9, 'M')
-  };
-  mgmt["個数"]                = getCellValue(10, 'P');
-  mgmt["材料価格"]            = getCellValue(9, 'R');
-  mgmt["新規/リピート"]       = getCellValue(10, 'F');
-  mgmt["製造/設計/転売"]      = getCellValue(10, 'L');
-  mgmt["新規受注品かリピート品か"] = mgmt["新規/リピート"];
-  mgmt["製造か設計か転売か"]       = mgmt["製造/設計/転売"];
-  mgmt["関与業者"] = [
-    { "業者名": getCellValue(11, 'E'), "役割": getCellValue(11, 'K') },
-    { "業者名": getCellValue(12, 'E'), "役割": getCellValue(12, 'K') },
-    { "業者名": getCellValue(13, 'E'), "役割": getCellValue(13, 'K') },
-    { "業者名": getCellValue(14, 'E'), "役割": getCellValue(14, 'K') }
-  ];
+    // 材料寸法
+    mgmt["材料寸法"] = { "縦": getCell(9,'F'), "横": getCell(9,'J'), "高さ": getCell(9,'M') };
+    mgmt["個数"] = getCell(10, 'P');
+    mgmt["材料価格"] = getCell(9, 'R');
 
-  mgmt["外注価格"]            = getCellValue(10, 'R');
-  mgmt["注文数"]              = getCellValue(12, 'P');
-  mgmt["販売単価"]            = getCellValue(11, 'R');
-  mgmt["作成者"]              = getCellValue(12, 'R');
-  mgmt["工程の注意点"]        = getCellValue(16, 'C');
-  mgmt["図面問い合わせ内容"]  = getCellValue(18, 'G');
-  mgmt["解答"]                = getCellValue(19, 'G');
+    // 新規/リピート
+    const nrVal = getCell(10, 'F'), msVal = getCell(10, 'L');
+    mgmt["新規/リピート"] = nrVal;
+    mgmt["製造/設計/転売"] = msVal;
+    mgmt["新規受注品かリピート品か"] = nrVal;
+    mgmt["製造か設計か転売か"] = msVal;
 
-  mgmt["確認履歴"] = [{
-    "処理の有無": getCellValue(20, 'E'),
-    "いつ":       getCellValue(20, 'J'),
-    "誰が":       getCellValue(20, 'M'),
-    "誰に":       getCellValue(20, 'Q')
-  }];
-  mgmt["多台待ち"] = getCellValue(20, 'G');
+    // 関与業者
+    mgmt["関与業者"] = [11,12,13,14].map(r => ({ "業者名": getCell(r,'E'), "役割": getCell(r,'K') }));
 
-  newHeader["管理部門記入欄"] = mgmt;
+    // 確認履歴
+    mgmt["確認履歴"] = [{
+      "処理の有無": getCell(20,'E'), "いつ": getCell(20,'J'),
+      "誰が": getCell(20,'M'), "誰に": getCell(20,'Q')
+    }];
+    mgmt["多台待ち"] = getCell(20, 'G');
 
-  const proc = newDetail["工程管理記入欄"] || {};
-  const rows = [];
-  for (let r = 24; r <= 35; r++) {
-    const month = getCellValue(r, 'C');
-    const day   = getCellValue(r, 'D');
-    const kou   = getCellValue(r, 'E');
-    const time  = getCellValue(r, 'H');
-    const setup = getCellValue(r, 'K');
-    const jig   = getCellValue(r, 'M');
-    const workm = getCellValue(r, 'O');
-    const worker= getCellValue(r, 'Q');
-    const price = getCellValue(r, 'R');
-    const qc    = getCellValue(r, 'S');
+    newHeader["管理部門記入欄"] = mgmt;
+    
+    // 工程管理記入欄
+    const proc = newDetail["工程管理記入欄"] || {};
+    proc["特別購入品"] = [
+      getCell(21, 'H'),
+      getCell(22, 'H'),
+      getCell(21, 'O'),
+      getCell(22, 'O')
+    ];
 
-    if (!(month || day || kou || time || setup || jig || workm || worker || price || qc)) {
-      continue;
+    const rows = [];
+    const JOB_COLS = ['C','D','E','H','K','M','O','Q','R','S'];
+
+    for (let r = 24; r <= 35; r++) {
+      const vals = JOB_COLS.map(c => getCell(r, c));
+      const [month, day, kou, time, setup, jig, workm, worker, price, qc] = vals;
+      if (!vals.some(v => v)) continue;
+
+      rows.push({
+        "作業日": month && day ? `-----${month}-${day}` : "",
+        "工程": kou,
+        "作業時間": { "開始": time.split('～')[0] || "", "終了": time.split('～')[1] || "" },
+        "段取時間(分)": setup, "治工具": jig, "作業時間(分)": workm,
+        "外注または加工者名": worker, "単価": price, "品質確認者": qc
+      });
     }
+    proc["工程管理"] = rows;
+    newDetail["工程管理記入欄"] = proc;
 
-    rows.push({
-      "作業日": month && day ? `-----${month}-${day}` : "",
-      "工程": kou,
-      "作業時間": {
-        "開始": time.split('～')[0] || "",
-        "終了": time.split('～')[1] || ""
-      },
-      "段取時間(分)": setup,
-      "治工具": jig,
-      "作業時間(分)": workm,
-      "外注または加工者名": worker,
-      "単価": price,
-      "品質確認者": qc
-    });
+    // 調査項目
+    const insp = newDetail["調査項目"] || {};
+    const inspMap = [
+      ["外観確認",39,'G'], ["寸法判定",40,'G'], ["幾何公差測定",41,'G'], ["ミルシート照合",42,'G'],
+      ["最終検査員の日付",41,'M'], ["最終検査員",42,'M'],
+      ["出荷調査の日付",41,'Q'], ["出荷調査",42,'Q'],
+      ["出荷承認の日付",41,'R'], ["出荷承認",42,'R'],
+      ["出荷者の日付",41,'S'], ["出荷者",42,'S']
+    ];
+    inspMap.forEach(([k, r, c]) => insp[k] = getCell(r, c));
+    newDetail["調査項目"] = insp;
+
+    return { headerJson: newHeader, detailJson: newDetail };
   }
-  proc["工程管理"] = rows;
-  newDetail["工程管理記入欄"] = proc;
 
-  const insp = newDetail["調査項目"] || {};
-  insp["外観確認"]           = getCellValue(39, 'G');
-  insp["寸法判定"]           = getCellValue(40, 'G');
-  insp["幾何公差測定"]       = getCellValue(41, 'G');
-  insp["ミルシート照合"]     = getCellValue(42, 'G');
-  insp["最終検査員の日付"]   = getCellValue(41, 'M');
-  insp["最終検査員"]         = getCellValue(42, 'M');
-  insp["出荷調査の日付"]     = getCellValue(41, 'Q');
-  insp["出荷調査"]           = getCellValue(42, 'Q');
-  insp["出荷承認の日付"]     = getCellValue(41, 'R');
-  insp["出荷承認"]           = getCellValue(42, 'R');
-  insp["出荷者の日付"]       = getCellValue(41, 'S');
-  insp["出荷者"]             = getCellValue(42, 'S');
-  newDetail["調査項目"] = insp;
+  // ----- JSON抽出 -----
+  function extractJsonObjects(rawText) {
+    const text = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const results = [];
+    let buf = '', depth = 0, inString = false, prev = '';
 
-  return { headerJson: newHeader, detailJson: newDetail };
-}
+    for (const ch of text) {
+      buf += ch;
+      if (ch === '"' && prev !== '\\') inString = !inString;
+      if (!inString) {
+        if (ch === '{') depth++;
+        if (ch === '}') depth--;
+      }
+      if (depth === 0 && buf.trim()) {
+        const candidate = buf.trim();
+        if (candidate.startsWith('{') && candidate.endsWith('}')) {
+          results.push(JSON.parse(candidate));
+          buf = '';
+        }
+      }
+      prev = ch;
+    }
+    if (buf.trim()) results.push(JSON.parse(buf.trim()));
+    return results;
+  }
 
+  // ----- イベントハンドラ -----
   const applyBtn = document.getElementById('apply-json-btn');
   const jsonInput = document.getElementById('json-input');
-
-if (tableBody && jsonInput) {
-  tableBody.addEventListener('input', function() {
-    const rebuilt = rebuildJsonFromTable();
-    headerJson = rebuilt.headerJson;
-    detailJson = rebuilt.detailJson;
-
-    jsonInput.value =
-      JSON.stringify(headerJson, null, 2) + "\n" +
-      JSON.stringify(detailJson, null, 2);
-  });
-}
-
-function extractJsonObjects(rawText) {
-  const text = rawText
-    .replace(/```json/gi, '')
-    .replace(/```/g, '')
-    .trim();
-
-  const results = [];
-  let buf = '';
-  let depth = 0;
-  let inString = false;
-  let prev = '';
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    buf += ch;
-
-    if (ch === '"' && prev !== '\\') {
-      inString = !inString;
-    }
-
-    if (!inString) {
-      if (ch === '{') depth++;
-      if (ch === '}') depth--;
-    }
-
-    if (depth === 0 && buf.trim()) {
-      const candidate = buf.trim();
-      if (candidate.startsWith('{') && candidate.endsWith('}')) {
-        results.push(JSON.parse(candidate));
-        buf = '';
-      }
-    }
-
-    prev = ch;
-  }
-
-  const rest = buf.trim();
-  if (rest) {
-    results.push(JSON.parse(rest));
-  }
-
-  return results;
-}
-if (applyBtn && jsonInput) {
-  applyBtn.addEventListener('click', function () {
-    const text = jsonInput.value.trim();
-    if (!text) return;
-
-    try {
-      const jsonList = extractJsonObjects(text);
-
-      jsonList.forEach(obj => {
-        if (obj.headerJson || obj.detailJson) {
-          if (obj.headerJson) headerJson = obj.headerJson;
-          if (obj.detailJson) detailJson = obj.detailJson;
-          return;
-        }
-
-        if (obj["基本情報"] || obj["管理部門記入欄"]) {
-          headerJson = obj;
-          return;
-        }
-
-        if (obj["工程管理記入欄"] || obj["調査項目"]) {
-          detailJson = obj;
-          return;
-        }
-      });
-
-      fillFromJson(headerJson, detailJson);
-    } catch (e) {
-      alert('JSONの形式が正しくありません: ' + e.message);
-    }
-  });
-}
   const printBtn = document.getElementById('print-btn');
-  if (printBtn) {
-    printBtn.addEventListener('click', function() {
-      window.print();
+
+  if (tableBody && jsonInput) {
+    tableBody.addEventListener('input', () => {
+      const rebuilt = rebuildJsonFromTable();
+      headerJson = rebuilt.headerJson;
+      detailJson = rebuilt.detailJson;
+      jsonInput.value = JSON.stringify(headerJson, null, 2) + "\n" + JSON.stringify(detailJson, null, 2);
     });
   }
 
+  if (applyBtn && jsonInput) {
+    applyBtn.addEventListener('click', () => {
+      const text = jsonInput.value.trim();
+      if (!text) return;
+      try {
+        extractJsonObjects(text).forEach(obj => {
+          if (obj.headerJson || obj.detailJson) {
+            if (obj.headerJson) headerJson = obj.headerJson;
+            if (obj.detailJson) detailJson = obj.detailJson;
+            return;
+          }
+          if (obj["基本情報"] || obj["管理部門記入欄"]) { headerJson = obj; return; }
+          if (obj["工程管理記入欄"] || obj["調査項目"]) { detailJson = obj; return; }
+        });
+        fillFromJson(headerJson, detailJson);
+      } catch (e) {
+        alert('JSONの形式が正しくありません: ' + e.message);
+      }
+    });
+  }
+
+  if (printBtn) {
+    printBtn.addEventListener('click', () => window.print());
+  }
 })();
 </script>
+
