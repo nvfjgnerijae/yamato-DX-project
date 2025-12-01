@@ -1,3 +1,213 @@
+
+<!--検索機能の追加-->
+
+<!--GASのコード-->
+<!--
+function doGet() {
+  // HTMLファイル名が "index" の場合
+  return HtmlService.createTemplateFromFile('index').evaluate()
+      .setTitle('流動票アプリ')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function doGet() {
+  // HTMLファイル名が "index" の場合
+  return HtmlService.createTemplateFromFile('index').evaluate()
+      .setTitle('流動票アプリ')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function doGet() {
+  return HtmlService.createTemplateFromFile('index').evaluate()
+      .setTitle('流動票アプリ')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+// 壊れている可能性のあるJSON（{...}{...}など）を配列として復元する補助関数
+function parseRobust(text) {
+  if (!text || text.trim() === "") return [];
+  const results = [];
+  let buf = '';
+  let depth = 0;
+  let inString = false;
+  let prev = '';
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"' && prev !== '\\') inString = !inString;
+    
+    if (!inString) {
+      if (ch === '{') {
+        if (depth === 0) buf = '';
+        depth++;
+      }
+    }
+    
+    if (depth > 0) buf += ch;
+
+    if (!inString) {
+      if (ch === '}') {
+        depth--;
+        if (depth === 0) {
+          try {
+            results.push(JSON.parse(buf));
+          } catch (e) {}
+          buf = '';
+        }
+      }
+    }
+    prev = ch;
+  }
+  return results;
+}
+
+// ドライブからテキストデータを取得する関数
+function getDataFromDrive() {
+  // 初期状態では空文字を返すことで、画面への反映を防ぐ
+  return "";
+}
+
+// データを保存・更新する関数
+function saveDataToDrive(jsonText) {
+  const FILE_ID = '17bTFuAhrij79UPMJ1YkyktBITGVbG5ze'; 
+  const file = DriveApp.getFileById(FILE_ID);
+  
+  // 1. 既存データの読み込み
+  let existingData = [];
+  try {
+    const text = file.getBlob().getDataAsString();
+    // parseRobustで抽出後、IDごとに結合して完全なレコード配列に戻す
+    const rawObjects = parseRobust(text);
+    existingData = mergeSplitObjects(rawObjects);
+  } catch (e) {
+    existingData = [];
+  }
+
+  // 2. 送信されたデータの処理
+  let newRecord = {};
+  try {
+    const inputParts = parseRobust(jsonText);
+    newRecord = Object.assign({}, ...inputParts);
+  } catch (e) {
+    throw new Error("送信データの形式が不正です。");
+  }
+
+  // 3. ID（流動票番号）による更新判定
+  const newId = newRecord["基本情報"] ? newRecord["基本情報"]["流動票番号"] : null;
+  
+  if (!newId) {
+    existingData.push(newRecord);
+  } else {
+    let isUpdated = false;
+    for (let i = 0; i < existingData.length; i++) {
+      const currentId = existingData[i]["基本情報"] ? existingData[i]["基本情報"]["流動票番号"] : null;
+      if (currentId === newId) {
+        existingData[i] = newRecord; // 上書き更新
+        isUpdated = true;
+        break;
+      }
+    }
+    if (!isUpdated) {
+      existingData.push(newRecord);
+    }
+  }
+
+  // 4. 指定されたMarkdown形式（```json ... ```）に変換して保存
+  try {
+    const formattedText = existingData.map(record => formatRecordToMarkdown(record)).join("\n\n");
+    file.setContent(formattedText); 
+    return "Driveへの保存・更新が完了しました。";
+  } catch (e) {
+    throw new Error("Driveへの書き込みに失敗しました: " + e.message);
+  }
+}
+
+// 流動票番号でデータを検索する関数
+function searchByNumber(targetNumber) {
+  const FILE_ID = '17bTFuAhrij79UPMJ1YkyktBITGVbG5ze'; 
+  
+  try {
+    const file = DriveApp.getFileById(FILE_ID);
+    const text = file.getBlob().getDataAsString();
+    
+    // 読み込みとマージを行う
+    const rawObjects = parseRobust(text);
+    const dataList = mergeSplitObjects(rawObjects);
+    
+    const targetStr = String(targetNumber).trim();
+    const foundItems = [];
+
+    // 検索
+    dataList.forEach(item => {
+      let id = null;
+      if (item["基本情報"] && item["基本情報"]["流動票番号"]) {
+        id = item["基本情報"]["流動票番号"];
+      } else if (item["工程管理記入欄"] && item["工程管理記入欄"]["流動票番号"]) {
+        id = item["工程管理記入欄"]["流動票番号"];
+      }
+      
+      if (id && String(id).trim() === targetStr) {
+        foundItems.push(item);
+      }
+    });
+
+    if (foundItems.length > 0) {
+      // フロントエンド用にMarkdown形式に整形して返す
+      return foundItems.map(item => formatRecordToMarkdown(item)).join("\n\n");
+    } else {
+      return null;
+    }
+  } catch (e) {
+    throw new Error("検索中にエラー: " + e.message);
+  }
+}
+
+// レコードデータを指定されたMarkdown形式の文字列に変換する補助関数
+function formatRecordToMarkdown(record) {
+  // 1つ目のブロック: 基本情報、管理部門記入欄
+  const part1 = {};
+  if (record["基本情報"]) part1["基本情報"] = record["基本情報"];
+  if (record["管理部門記入欄"]) part1["管理部門記入欄"] = record["管理部門記入欄"];
+
+  // 2つ目のブロック: 工程管理記入欄、調査項目
+  const part2 = {};
+  if (record["工程管理記入欄"]) part2["工程管理記入欄"] = record["工程管理記入欄"];
+  if (record["調査項目"]) part2["調査項目"] = record["調査項目"];
+
+  // ```json で囲んで出力
+  return "```json\n" + JSON.stringify(part1, null, 2) + "\n```\n" +
+         "```json\n" + JSON.stringify(part2, null, 2) + "\n```";
+}
+
+// バラバラに読み込まれたJSONブロックを、流動票番号をキーにして1つのオブジェクトに統合する関数
+function mergeSplitObjects(objects) {
+  const mergedMap = new Map();
+  const resultOrder = []; // データの並び順を保持用
+
+  objects.forEach(obj => {
+    // 流動票番号を探す
+    let id = null;
+    if (obj["基本情報"] && obj["基本情報"]["流動票番号"]) {
+      id = obj["基本情報"]["流動票番号"];
+    } else if (obj["工程管理記入欄"] && obj["工程管理記入欄"]["流動票番号"]) {
+      id = obj["工程管理記入欄"]["流動票番号"];
+    }
+
+    if (id) {
+      if (!mergedMap.has(id)) {
+        const newRecord = {};
+        mergedMap.set(id, newRecord);
+        resultOrder.push(newRecord);
+      }
+      // 既存のオブジェクトにプロパティをマージ
+      Object.assign(mergedMap.get(id), obj);
+    }
+  });
+
+  return resultOrder;
+}
+-->
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link type="text/css" rel="stylesheet" href="resources/sheet.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -30,143 +240,51 @@
   text-align: center;
 }
 
-.ritz .waffle .s1,
-.ritz .waffle .s4,
-.ritz .waffle .s6,
-.ritz .waffle .s12,
-.ritz .waffle .s14,
-.ritz .waffle .s15,
-.ritz .waffle .s20,
-.ritz .waffle .s23,
-.ritz .waffle .s24,
-.ritz .waffle .s26,
-.ritz .waffle .s29,
-.ritz .waffle .s30,
-.ritz .waffle .s35,
-.ritz .waffle .s37,
-.ritz .waffle .s38,
-.ritz .waffle .s39,
-.ritz .waffle .s40,
-.ritz .waffle .s42,
-.ritz .waffle .s47,
-.ritz .waffle .s50,
-.ritz .waffle .s51 {
+.ritz .waffle .s1,.ritz .waffle .s4,.ritz .waffle .s6,.ritz .waffle .s12,.ritz .waffle .s14,.ritz .waffle .s15,
+.ritz .waffle .s20,.ritz .waffle .s23,.ritz .waffle .s24,.ritz .waffle .s26,.ritz .waffle .s29,.ritz .waffle .s30,
+.ritz .waffle .s35,.ritz .waffle .s37,.ritz .waffle .s38,.ritz .waffle .s39,.ritz .waffle .s40,.ritz .waffle .s42,
+.ritz .waffle .s47,.ritz .waffle .s50,.ritz .waffle .s51 {
   text-align: left;
 }
 
-.ritz .waffle .s3,
-.ritz .waffle .s19 {
+.ritz .waffle .s3,.ritz .waffle .s19 {
   text-align: right;
 }
 
 /* border パターン - 下線2px */
-.ritz .waffle .s4,
-.ritz .waffle .s5,
-.ritz .waffle .s6,
-.ritz .waffle .s7,
-.ritz .waffle .s24,
-.ritz .waffle .s25,
-.ritz .waffle .s26,
-.ritz .waffle .s30,
-.ritz .waffle .s33,
-.ritz .waffle .s46,
-.ritz .waffle .s47,
-.ritz .waffle .s48,
-.ritz .waffle .s49,
-.ritz .waffle .s50,
-.ritz .waffle .s51,
-.ritz .waffle .s52,
-.ritz .waffle .s53,
-.ritz .waffle .s54,
+.ritz .waffle .s4,.ritz .waffle .s5,.ritz .waffle .s6,.ritz .waffle .s7,.ritz .waffle .s24,.ritz .waffle .s25,
+.ritz .waffle .s26,.ritz .waffle .s30,.ritz .waffle .s33,.ritz .waffle .s46,.ritz .waffle .s47,.ritz .waffle .s48,
+.ritz .waffle .s49,.ritz .waffle .s50,.ritz .waffle .s51,.ritz .waffle .s52,.ritz .waffle .s53,.ritz .waffle .s54,
 .ritz .waffle .s57 {
   border-bottom: 2px solid #000;
 }
 
 /* 下線1px */
-.ritz .waffle .s10,
-.ritz .waffle .s11,
-.ritz .waffle .s12,
-.ritz .waffle .s13,
-.ritz .waffle .s14,
-.ritz .waffle .s15,
-.ritz .waffle .s16,
-.ritz .waffle .s17,
-.ritz .waffle .s18,
-.ritz .waffle .s19,
-.ritz .waffle .s20,
-.ritz .waffle .s21,
-.ritz .waffle .s22,
-.ritz .waffle .s23,
-.ritz .waffle .s28,
-.ritz .waffle .s31,
-.ritz .waffle .s32,
-.ritz .waffle .s34,
-.ritz .waffle .s35,
-.ritz .waffle .s40,
-.ritz .waffle .s41,
-.ritz .waffle .s42,
-.ritz .waffle .s56,
-.ritz .waffle .s58 {
+.ritz .waffle .s10,.ritz .waffle .s11,.ritz .waffle .s12,.ritz .waffle .s13,.ritz .waffle .s14,.ritz .waffle .s15,
+.ritz .waffle .s16,.ritz .waffle .s17,.ritz .waffle .s18,.ritz .waffle .s19,.ritz .waffle .s20,.ritz .waffle .s21,
+.ritz .waffle .s22,.ritz .waffle .s23,.ritz .waffle .s28,.ritz .waffle .s31,.ritz .waffle .s32,.ritz .waffle .s34,
+.ritz .waffle .s35,.ritz .waffle .s40,.ritz .waffle .s41,.ritz .waffle .s42,.ritz .waffle .s56,.ritz .waffle .s58 {
   border-bottom: 1px solid #000;
 }
 
 /* 右線2px */
-.ritz .waffle .s8,
-.ritz .waffle .s11,
-.ritz .waffle .s13,
-.ritz .waffle .s14,
-.ritz .waffle .s21,
-.ritz .waffle .s26,
-.ritz .waffle .s27,
-.ritz .waffle .s34,
-.ritz .waffle .s39,
-.ritz .waffle .s42,
-.ritz .waffle .s45,
-.ritz .waffle .s53,
-.ritz .waffle .s54,
-.ritz .waffle .s58 {
+.ritz .waffle .s8,.ritz .waffle .s11,.ritz .waffle .s13,.ritz .waffle .s14,.ritz .waffle .s21,.ritz .waffle .s26,
+.ritz .waffle .s27,.ritz .waffle .s34,.ritz .waffle .s39,.ritz .waffle .s42,.ritz .waffle .s45,.ritz .waffle .s53,
+.ritz .waffle .s54,.ritz .waffle .s58 {
   border-right: 2px solid #000;
 }
 
 /* 右線1px */
-.ritz .waffle .s9,
-.ritz .waffle .s10,
-.ritz .waffle .s12,
-.ritz .waffle .s15,
-.ritz .waffle .s16,
-.ritz .waffle .s17,
-.ritz .waffle .s18,
-.ritz .waffle .s19,
-.ritz .waffle .s20,
-.ritz .waffle .s22,
-.ritz .waffle .s23,
-.ritz .waffle .s24,
-.ritz .waffle .s25,
-.ritz .waffle .s28,
-.ritz .waffle .s31,
-.ritz .waffle .s32,
-.ritz .waffle .s33,
-.ritz .waffle .s35,
-.ritz .waffle .s43,
-.ritz .waffle .s44,
-.ritz .waffle .s46,
-.ritz .waffle .s47,
-.ritz .waffle .s48,
-.ritz .waffle .s50,
-.ritz .waffle .s51,
-.ritz .waffle .s52,
-.ritz .waffle .s55,
-.ritz .waffle .s56,
-.ritz .waffle .s57 {
+.ritz .waffle .s9,.ritz .waffle .s10,.ritz .waffle .s12,.ritz .waffle .s15,.ritz .waffle .s16,.ritz .waffle .s17,
+.ritz .waffle .s18,.ritz .waffle .s19,.ritz .waffle .s20,.ritz .waffle .s22,.ritz .waffle .s23,.ritz .waffle .s24,
+.ritz .waffle .s25,.ritz .waffle .s28,.ritz .waffle .s31,.ritz .waffle .s32,.ritz .waffle .s33,.ritz .waffle .s35,
+.ritz .waffle .s43,.ritz .waffle .s44,.ritz .waffle .s46,.ritz .waffle .s47,.ritz .waffle .s48,.ritz .waffle .s50,
+.ritz .waffle .s51,.ritz .waffle .s52,.ritz .waffle .s55,.ritz .waffle .s56,.ritz .waffle .s57 {
   border-right: 1px solid #000;
 }
 
 /* 背景色グレー */
-.ritz .waffle .s13,
-.ritz .waffle .s15,
-.ritz .waffle .s22,
-.ritz .waffle .s26,
-.ritz .waffle .s55 {
+.ritz .waffle .s13,.ritz .waffle .s15,.ritz .waffle .s22,.ritz .waffle .s26,.ritz .waffle .s55 {
   background-color: #d9d9d9;
 }
 
@@ -176,80 +294,44 @@
   font-weight: 700;
 }
 
-.ritz .waffle .s7,
-.ritz .waffle .s21,
-.ritz .waffle .s25,
-.ritz .waffle .s32 {
+.ritz .waffle .s7,.ritz .waffle .s21,.ritz .waffle .s25,.ritz .waffle .s32 {
   font-size: 9pt;
 }
 
-.ritz .waffle .s17,
-.ritz .waffle .s44,
-.ritz .waffle .s45,
-.ritz .waffle .s48 {
+.ritz .waffle .s17,.ritz .waffle .s44,.ritz .waffle .s45,.ritz .waffle .s48 {
   font-size: 10pt;
 }
 
-.ritz .waffle .s28,
-.ritz .waffle .s35,
-.ritz .waffle .s36,
-.ritz .waffle .s37,
-.ritz .waffle .s38,
-.ritz .waffle .s39,
-.ritz .waffle .s40,
-.ritz .waffle .s42,
-.ritz .waffle .s46,
-.ritz .waffle .s47,
-.ritz .waffle .s50,
-.ritz .waffle .s51 {
+.ritz .waffle .s28,.ritz .waffle .s35,.ritz .waffle .s36,.ritz .waffle .s37,.ritz .waffle .s38,.ritz .waffle .s39,
+.ritz .waffle .s40,.ritz .waffle .s42,.ritz .waffle .s46,.ritz .waffle .s47,.ritz .waffle .s50,.ritz .waffle .s51 {
   font-size: 11pt;
 }
 
-.ritz .waffle .s52,
-.ritz .waffle .s53 {
+.ritz .waffle .s52,.ritz .waffle .s53 {
   font-size: 14pt;
 }
 
-.ritz .waffle .s18,
-.ritz .waffle .s31,
-.ritz .waffle .s56,
-.ritz .waffle .s57,
-.ritz .waffle .s58 {
+.ritz .waffle .s18,.ritz .waffle .s31,.ritz .waffle .s56,.ritz .waffle .s57,.ritz .waffle .s58 {
   font-size: 7pt;
 }
 
-.ritz .waffle .s29,
-.ritz .waffle .s30 {
+.ritz .waffle .s29,.ritz .waffle .s30 {
   font-size: 10pt;
 }
 
 /* font-weight: bold */
-.ritz .waffle .s2,
-.ritz .waffle .s7,
-.ritz .waffle .s17,
-.ritz .waffle .s21,
-.ritz .waffle .s25,
-.ritz .waffle .s38,
-.ritz .waffle .s52,
-.ritz .waffle .s53 {
+.ritz .waffle .s2,.ritz .waffle .s7,.ritz .waffle .s17,.ritz .waffle .s21,.ritz .waffle .s25,.ritz .waffle .s38,
+.ritz .waffle .s52,.ritz .waffle .s53 {
   font-weight: 700;
 }
 
 /* font-family 特殊 */
-.ritz .waffle .s15,
-.ritz .waffle .s23,
-.ritz .waffle .s37,
-.ritz .waffle .s39,
-.ritz .waffle .s42 {
+.ritz .waffle .s15,.ritz .waffle .s23,.ritz .waffle .s37,.ritz .waffle .s39,.ritz .waffle .s42 {
   font-family: "docs-Aptos Narrow", Arial;
 }
 
 /* 折り返し許可 */
-.ritz .waffle .s16,
-.ritz .waffle .s17,
-.ritz .waffle .s18,
-.ritz .waffle .s20,
-.ritz .waffle .s21 {
+.ritz .waffle .s16,.ritz .waffle .s17,.ritz .waffle .s18,.ritz .waffle .s20,.ritz .waffle .s21 {
   white-space: normal;
   overflow: hidden;
   word-wrap: break-word;
@@ -321,6 +403,15 @@ thead, th.row-headers-background {
 }
 </style>
 <div id="control-panel" style="margin-bottom: 1rem;">
+  <!-- ▼▼▼ 検索エリア追加 ▼▼▼ -->
+  <div style="margin-bottom: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; display: flex; align-items: center; gap: 10px;">
+    <span style="font-weight:bold;">流動票検索:</span>
+    <input type="text" id="search-keyword" placeholder="流動票番号を入力" style="font-size: 16px; padding: 4px; width: 150px;">
+    <button id="search-btn" style="cursor: pointer; padding: 4px 12px;">検索して反映</button>
+    <span id="search-status" style="font-size: 12px; color: #666;"></span>
+  </div>
+  <!-- ▲▲▲ 検索エリア追加 ▲▲▲ -->
+
   <textarea id="json-input" rows="10" style="width:100%;"
   placeholder=
 '```json
@@ -334,9 +425,12 @@ thead, th.row-headers-background {
 }
 ```
   '></textarea>
-  <div style="margin-top: 0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <div style="margin-top: 0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items: center;">
   <button id="apply-json-btn">情報を反映</button>
-  <button id="print-btn">保存/印刷</button>
+  <button id="print-btn">印刷/PDF</button>
+  <button id="save-btn">ドライブに保存</button>
+  <!-- 保存状況を表示する場所 -->
+  <span id="save-status" style="font-size: 0.8rem; color: #666; margin-left: 10px;"></span>
 </div>
 </div>
 <div class="ritz grid-container" dir="ltr">
@@ -972,8 +1066,7 @@ thead, th.row-headers-background {
       "関与業者": [{ "業者名": "", "役割": "" }, { "業者名": "", "役割": "" }],
       "材料価格": 0, "外注価格": 0, "工程の注意点": "", "図面問い合わせ内容": "",
       "解答": "", "販売単価": 0,
-      "確認履歴": [{ "いつ": "", "誰が": "", "誰に": "", "処理の有無": "" }],
-      "多台待ち": 0
+      "処理の有無": "", "いつ": "", "誰が": "", "誰に確認": "", "台待ち": 0
     }
   };
 
@@ -1138,14 +1231,12 @@ thead, th.row-headers-background {
     setCell(19, 'G', mgmt["解答"] || mgmt["回答"]);
 
     // 確認履歴
-    const hist = Array.isArray(mgmt["確認履歴"]) ? mgmt["確認履歴"][0] : null;
-    if (hist) {
-      setCell(20, 'E', hist["処理の有無"]);
-      setCell(20, 'J', fmtMD(hist["いつ"]));
-      setCell(20, 'M', hist["誰が"]);
-      setCell(20, 'Q', hist["誰に"]);
-    }
-    if (mgmt["多台待ち"] !== undefined) setCell(20, 'G', mgmt["多台待ち"]);
+    setCell(20, 'E', mgmt["処理の有無"]);
+    setCell(20, 'J', fmtMD(mgmt["いつ"]));
+    setCell(20, 'M', mgmt["誰が"]);
+    setCell(20, 'Q', mgmt["誰に確認"]); // キー名「誰に確認」
+
+    if (mgmt["台待ち"] !== undefined) setCell(20, 'G', mgmt["台待ち"]);
 
     // 特別購入品 (修正版)
     const spItems = Array.isArray(proc["特別購入品"]) ? proc["特別購入品"] : [];
@@ -1172,7 +1263,15 @@ thead, th.row-headers-background {
       if (row > JOB_END) return;
       const md = splitMD(job["作業日"]);
       const time = job["作業時間"];
-      const workTime = (time?.["開始"] && time?.["終了"]) ? `${time["開始"]}～${time["終了"]}` : "";
+      let workTime = "";
+      if (time) {
+        if (time["開始"] && time["終了"]) {
+          workTime = `${time["開始"]}～${time["終了"]}`;
+        } else {
+          // どちらか片方だけ、あるいは自由記述の場合
+          workTime = (time["開始"] || "") + (time["終了"] || "");
+        }
+      }
       const vals = [
         md.month, md.day, job["工程"], workTime,
         job["段取時間(分)"], job["治工具"], job["作業時間(分)"],
@@ -1228,8 +1327,8 @@ thead, th.row-headers-background {
     const dn1L = getCell(7, 'E'), dn1R = getCell(7, 'G');
     const dn2L = getCell(7, 'L'), dn2R = getCell(7, 'N');
     Object.assign(mgmt, {
-      "分納期1": dn1L, "分納期1_2": dn1R, "分納納期１": dn1L,
-      "分納期2": dn2L, "分納期2_2": dn2R, "分納納期２": dn2L
+      "分納期1": dn1L, "分納期1_2": dn1R,
+      "分納期2": dn2L, "分納期2_2": dn2R
     });
 
     // 材料寸法
@@ -1239,22 +1338,21 @@ thead, th.row-headers-background {
 
     // 新規/リピート
     const nrVal = getCell(10, 'F'), msVal = getCell(10, 'L');
-    mgmt["新規/リピート"] = nrVal;
-    mgmt["製造/設計/転売"] = msVal;
     mgmt["新規受注品かリピート品か"] = nrVal;
     mgmt["製造か設計か転売か"] = msVal;
 
     // 関与業者
     mgmt["関与業者"] = [11,12,13,14].map(r => ({ "業者名": getCell(r,'E'), "役割": getCell(r,'K') }));
 
-    // 確認履歴
-    mgmt["確認履歴"] = [{
-      "処理の有無": getCell(20,'E'), "いつ": getCell(20,'J'),
-      "誰が": getCell(20,'M'), "誰に": getCell(20,'Q')
-    }];
-    mgmt["多台待ち"] = getCell(20, 'G');
-
-    newHeader["管理部門記入欄"] = mgmt;
+   // 確認履歴 (フラット化対応)
+    mgmt["処理の有無"] = getCell(20, 'E');
+    mgmt["いつ"] = getCell(20, 'J');
+    mgmt["誰が"] = getCell(20, 'M');
+    mgmt["誰に確認"] = getCell(20, 'Q');
+    mgmt["台待ち"] = getCell(20, 'G');
+    
+    // 不要な配列データがあれば削除
+    delete mgmt["確認履歴"];
     
     // 工程管理記入欄
     const proc = newDetail["工程管理記入欄"] || {};
@@ -1268,15 +1366,42 @@ thead, th.row-headers-background {
     const rows = [];
     const JOB_COLS = ['C','D','E','H','K','M','O','Q','R','S'];
 
+    // 現在の日付情報を取得
+    const today = new Date();
+    const thisYear = today.getFullYear();
+    const thisMonth = today.getMonth() + 1; // 1月=1, 12月=12
+
     for (let r = 24; r <= 35; r++) {
       const vals = JOB_COLS.map(c => getCell(r, c));
       const [month, day, kou, time, setup, jig, workm, worker, price, qc] = vals;
       if (!vals.some(v => v)) continue;
 
+      // --- 年の自動判定ロジック ---
+      let targetYear = thisYear;
+      const mVal = parseInt(month, 10);
+      
+      // もし「現在は1月〜3月」かつ「入力された月が10月〜12月」なら、去年のこととみなす
+      if (thisMonth <= 3 && mVal >= 10) {
+        targetYear = thisYear - 1;
+      }
+      // --------------------------
+
+      // 月と日を2桁(0埋め)に整形
+      const mm = month ? month.toString().padStart(2, '0') : '';
+      const dd = day ? day.toString().padStart(2, '0') : '';
+
+      // 作業時間の分割処理を丁寧に行う
+      let tStart = time, tEnd = "";
+      if (time && time.includes('～')) {
+        const parts = time.split('～');
+        tStart = parts[0];
+        tEnd = parts[1] || "";
+      }
+
       rows.push({
-        "作業日": month && day ? `-----${month}-${day}` : "",
+        "作業日": (month && day) ? `${targetYear}-${mm}-${dd}` : "",
         "工程": kou,
-        "作業時間": { "開始": time.split('～')[0] || "", "終了": time.split('～')[1] || "" },
+        "作業時間": { "開始": tStart, "終了": tEnd }, // 修正後の変数を使用
         "段取時間(分)": setup, "治工具": jig, "作業時間(分)": workm,
         "外注または加工者名": worker, "単価": price, "品質確認者": qc
       });
@@ -1299,70 +1424,278 @@ thead, th.row-headers-background {
     return { headerJson: newHeader, detailJson: newDetail };
   }
 
-  // ----- JSON抽出 -----
+  // ----- JSON抽出 (強化版: エラー無視・ゴミデータ無視) -----
   function extractJsonObjects(rawText) {
+    // Markdown記法などを除去
     const text = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const results = [];
     let buf = '', depth = 0, inString = false, prev = '';
 
     for (const ch of text) {
-      buf += ch;
+      // 文字列の中にある "{" などを無視するための判定
       if (ch === '"' && prev !== '\\') inString = !inString;
+
+      // depthが0（{の外側）の時の文字は無視するが、{ が来た瞬間だけ depthを増やす
       if (!inString) {
-        if (ch === '{') depth++;
-        if (ch === '}') depth--;
+        if (ch === '{') {
+          if (depth === 0) buf = ''; // ゴミデータをリセット
+          depth++;
+        }
       }
-      if (depth === 0 && buf.trim()) {
-        const candidate = buf.trim();
-        if (candidate.startsWith('{') && candidate.endsWith('}')) {
-          results.push(JSON.parse(candidate));
-          buf = '';
+
+      // depthが1以上（ { の中 ）の時だけ記録する
+      if (depth > 0) {
+         buf += ch;
+      }
+
+      if (!inString) {
+        if (ch === '}') {
+          depth--;
+          // オブジェクトの終了
+          if (depth === 0) {
+            try {
+              // ここでパースに失敗しても無視する
+              results.push(JSON.parse(buf));
+            } catch (e) {
+              console.log("無視された不正なJSONブロック:", buf);
+            }
+            buf = '';
+          }
         }
       }
       prev = ch;
     }
-    if (buf.trim()) results.push(JSON.parse(buf.trim()));
     return results;
   }
 
-  // ----- イベントハンドラ -----
+  // ============================================================
+  //  イベントハンドラ・自動保存・初期読み込み (すべて統合版)
+  // ============================================================
+
   const applyBtn = document.getElementById('apply-json-btn');
   const jsonInput = document.getElementById('json-input');
+  const saveBtn = document.getElementById('save-btn');
   const printBtn = document.getElementById('print-btn');
+  const statusSpan = document.getElementById('save-status');
 
+  let autoSaveTimer; // 自動保存のタイマー
+
+  // 保存中かどうかを判定するフラグ
+  let isSavingProcess = false;
+
+  // ■ 共通の保存処理関数
+  const performSave = (isAuto) => {
+    if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+      console.log("GAS環境ではないため保存スキップ");
+      return;
+    }
+
+    const content = jsonInput.value;
+    
+    // 保存中フラグをON
+    isSavingProcess = true;
+
+    // 保存中表示
+    if (statusSpan) statusSpan.textContent = isAuto ? "自動保存中..." : "保存中...";
+    if (saveBtn) saveBtn.disabled = true;
+
+    google.script.run
+      .withSuccessHandler(function(msg) {
+        // 保存中フラグをOFF
+        isSavingProcess = false;
+
+        // 成功時
+        const time = new Date().toLocaleTimeString();
+        if (statusSpan) {
+          statusSpan.textContent = "保存完了 (" + time + ")";
+          statusSpan.style.color = "green";
+        }
+        if (saveBtn) saveBtn.disabled = false;
+      })
+      .withFailureHandler(function(error) {
+        // 保存中フラグをOFF
+        isSavingProcess = false;
+
+        // 失敗時
+        if (statusSpan) {
+          statusSpan.textContent = "保存失敗";
+          statusSpan.style.color = "red";
+        }
+        if (!isAuto) alert('保存エラー: ' + error); // エラー時は念のため出すか、ここも消してステータスのみにするかはお好みで
+        if (saveBtn) saveBtn.disabled = false;
+      })
+      .saveDataToDrive(content);
+  };
+
+  // ★ 画面を閉じたり更新したりする際の警告処理を追加
+  window.addEventListener('beforeunload', function(e) {
+    if (isSavingProcess) {
+      // 保存中の場合、ブラウザ標準の警告ダイアログを出す設定
+      e.preventDefault();
+      e.returnValue = ''; // Chrome等の仕様で空文字を設定
+    }
+  });
+
+  // ■ 1. テーブル変更時の処理（JSON更新 ＋ 自動保存予約）
   if (tableBody && jsonInput) {
     tableBody.addEventListener('input', () => {
+      // (1) JSONを更新
       const rebuilt = rebuildJsonFromTable();
       headerJson = rebuilt.headerJson;
       detailJson = rebuilt.detailJson;
       jsonInput.value = JSON.stringify(headerJson, null, 2) + "\n" + JSON.stringify(detailJson, null, 2);
+
+      // (2) 自動保存の予約（3秒後に実行）
+      if (statusSpan) {
+        statusSpan.textContent = "編集を検知... (3秒後に保存)";
+        statusSpan.style.color = "#666";
+      }
+      
+      clearTimeout(autoSaveTimer); 
+      autoSaveTimer = setTimeout(() => {
+        performSave(true); // 自動保存モード
+      }, 3000); 
     });
   }
 
+  // ■ 2. 「ドライブに保存」ボタン（手動保存）
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      clearTimeout(autoSaveTimer); 
+      performSave(false); // 手動モード
+    });
+  }
+
+  // ■ 3. 「印刷」ボタン
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+ // ■ 4. 「情報を反映」ボタン
   if (applyBtn && jsonInput) {
     applyBtn.addEventListener('click', () => {
       const text = jsonInput.value.trim();
       if (!text) return;
+      
       try {
-        extractJsonObjects(text).forEach(obj => {
+        const objects = extractJsonObjects(text); // 強化版関数を使用
+        
+        if (objects.length === 0) return;
+
+        objects.forEach(obj => {
           if (obj.headerJson || obj.detailJson) {
             if (obj.headerJson) headerJson = obj.headerJson;
             if (obj.detailJson) detailJson = obj.detailJson;
             return;
           }
-          if (obj["基本情報"] || obj["管理部門記入欄"]) { headerJson = obj; return; }
-          if (obj["工程管理記入欄"] || obj["調査項目"]) { detailJson = obj; return; }
+          // return を削除し、同じオブジェクトから両方の情報を取得できるようにする
+          if (obj["基本情報"] || obj["管理部門記入欄"]) { headerJson = obj; }
+          if (obj["工程管理記入欄"] || obj["調査項目"]) { detailJson = obj; }
         });
+
         fillFromJson(headerJson, detailJson);
+        
+        // 反映後、自動保存を走らせる
+        const event = new Event('input', { bubbles: true });
+        tableBody.dispatchEvent(event);
+
       } catch (e) {
-        alert('JSONの形式が正しくありません: ' + e.message);
+        // アラートは出さず、裏側でログだけ残す
+        console.warn('反映処理エラー（無視しました）:', e);
       }
     });
   }
 
-  if (printBtn) {
-    printBtn.addEventListener('click', () => window.print());
-  }
-})();
-</script>
+  // ■ 5. ★ここが復活させた初期読み込み処理です★
+  window.addEventListener('load', function() {
+    if (typeof google === 'undefined' || typeof google.script === 'undefined') return;
 
+    if (statusSpan) statusSpan.textContent = "データを読み込み中...";
+
+    google.script.run
+      .withSuccessHandler(function(data) {
+        if (jsonInput) {
+          jsonInput.value = data;
+          // データが入ったら自動で「情報を反映」ボタンを押す
+          if (applyBtn) {
+             setTimeout(() => {
+               applyBtn.click();
+               if(statusSpan) statusSpan.textContent = ""; // 読み込み完了後はクリア
+             }, 100);
+          }
+        }
+      })
+      .withFailureHandler(function(error) {
+        alert('ドライブからの読み込みに失敗しました: ' + error);
+      })
+      .getDataFromDrive();
+  });
+
+  // ■ 6. 検索機能のイベントリスナー
+  const searchBtn = document.getElementById('search-btn');
+  const searchInput = document.getElementById('search-keyword');
+  const searchStatus = document.getElementById('search-status'); // HTMLに追加したspan IDと合わせる
+
+  if (searchBtn && searchInput) {
+    searchBtn.addEventListener('click', function() {
+      const keyword = searchInput.value.trim();
+      if (!keyword) {
+        alert("流動票番号を入力してください");
+        return;
+      }
+
+      if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+        alert("GAS環境ではないため検索できません");
+        return;
+      }
+
+      // UIの状態更新
+      searchBtn.disabled = true;
+      if (searchStatus) {
+        searchStatus.textContent = "ドライブ内を検索中...";
+        searchStatus.style.color = "blue";
+      }
+
+      // GASの検索関数を呼び出し
+      google.script.run
+        .withSuccessHandler(function(jsonResult) {
+          searchBtn.disabled = false;
+          if (jsonResult) {
+            // 見つかったJSONをテキストエリアに入れる
+            if (jsonInput) {
+              jsonInput.value = jsonResult;
+              
+              // 「情報を反映」ボタンを自動クリックしてテーブルに展開
+              if (applyBtn) {
+                applyBtn.click();
+              }
+            }
+            if (searchStatus) {
+              searchStatus.textContent = "検索完了: データを反映しました";
+              searchStatus.style.color = "green";
+            }
+          } else {
+            // 見つからなかった場合
+            if (searchStatus) {
+              searchStatus.textContent = "該当するデータが見つかりませんでした";
+              searchStatus.style.color = "red";
+            }
+            alert("流動票番号: " + keyword + " に一致するデータが見つかりませんでした。");
+          }
+        })
+        .withFailureHandler(function(error) {
+          searchBtn.disabled = false;
+          if (searchStatus) {
+            searchStatus.textContent = "検索エラー";
+            searchStatus.style.color = "red";
+          }
+          alert('検索処理中にエラーが発生しました: ' + error);
+        })
+        .searchByNumber(keyword); // GAS側の関数名
+    });
+  }
+
+})(); // ← メイン処理の閉じカッコ
+</script>
