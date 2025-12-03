@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーコード読み取り機</title>
+    <!-- QuaggaJSライブラリの読み込み -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 { margin-bottom: 10px; }
+        
+        /* カメラ表示エリアのデザイン */
+        #interactive {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 2px solid #555;
+            background-color: #000;
+        }
+        
+        /* 映像自体のスタイル */
+        #interactive video {
+            width: 100%;
+            height: auto;
+        }
+
+        /* 読み取り用の枠線（キャンバス） */
+        #interactive canvas.drawingBuffer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls { margin: 20px 0; }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .result-area {
+            background-color: white;
+            color: black;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        
+        #result_code {
+            font-weight: bold;
+            font-size: 24px;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>バーコード・スキャナー</h2>
+    <p>カメラをバーコードに向けてください</p>
+
+    <div class="controls">
+        <button onclick="startScanner()">カメラを起動する</button>
+        <button onclick="stopScanner()" style="background-color: #dc3545;">停止</button>
+    </div>
+
+    <div id="interactive" class="viewport"></div>
+
+    <div class="result-area">
+        読み取り結果: <br>
+        <span id="result_code">---</span>
+    </div>
+
+<script>
+    let isScanning = false;
+
+    function startScanner() {
+        if (isScanning) return;
+
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#interactive'),
+                constraints: {
+                    facingMode: "environment", // 背面カメラを利用
+                    width: 640,
+                    height: 480
+                }
+            },
+            decoder: {
+                readers: [
+                    "code_128_reader", // 先ほど生成した汎用コード
+                    "ean_reader",      // JANコード（商品バーコード）
+                ]
+            }
+        }, function (err) {
+            if (err) {
+                console.log(err);
+                alert("カメラの起動に失敗しました。\nHTTPS接続か確認してください。");
+                return;
+            }
+            console.log("Initialization finished. Ready to start");
+            Quagga.start();
+            isScanning = true;
+        });
+
+        // 読み取りプロセス中の描画設定（緑の枠を表示）
+        Quagga.onProcessed(function (result) {
+            var drawingCtx = Quagga.canvas.ctx.overlay,
+                drawingCanvas = Quagga.canvas.dom.overlay;
+
+            if (result) {
+                if (result.boxes) {
+                    drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                    result.boxes.filter(function (box) {
+                        return box !== result.box;
+                    }).forEach(function (box) {
+                        Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                    });
+                }
+
+                if (result.box) {
+                    Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
+                }
+
+                if (result.codeResult && result.codeResult.code) {
+                    Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
+                }
+            }
+        });
+
+        // バーコードを検出した時の処理
+        Quagga.onDetected(function (result) {
+            const code = result.codeResult.code;
+            document.getElementById("result_code").innerText = code;
+            
+            // 連続読み取りを防ぐために一時停止したい場合は以下を有効化
+            // stopScanner(); 
+            // alert("読み取り成功: " + code);
+        });
+    }
+
+    function stopScanner() {
+        if (isScanning) {
+            Quagga.stop();
+            isScanning = false;
+        }
+    }
+</script>
+
+</body>
+</html>
